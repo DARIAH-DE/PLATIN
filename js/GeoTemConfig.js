@@ -152,8 +152,9 @@ GeoTemConfig.getColor = function(id){
 	if (typeof GeoTemConfig.datasets[id].color === "undefined"){
 		var color;
 		
-		while (true){
-			if( GeoTemConfig.colors.length <= GeoTemConfig.assignedColorCount ){
+		//while (true){
+			//if( GeoTemConfig.colors.length <= GeoTemConfig.assignedColorCount ){
+				// Create color for the dataset
 				color = {
 					r1 : Math.floor((Math.random()*255)+1),
 					g1 : Math.floor((Math.random()*255)+1),
@@ -162,12 +163,13 @@ GeoTemConfig.getColor = function(id){
 					g0 : 230,
 					b0 : 230
 				};
-			} else
-				color = GeoTemConfig.colors[GeoTemConfig.assignedColorCount];
+				
+			/*} else
+				color = GeoTemConfig.colors[GeoTemConfig.assignedColorCount];*/
 			
 			//make sure that no other dataset has this color
 			//TODO: one could also check that they are not too much alike
-			var found = false;
+			/*var found = false;
 			for (var i = 0; i < GeoTemConfig.datasets.length; i++){
 				var dataset = GeoTemConfig.datasets[i];
 				
@@ -191,7 +193,9 @@ GeoTemConfig.getColor = function(id){
 				GeoTemConfig.colors.push(color);
 				break;
 			}
-		}
+		}*/
+		GeoTemConfig.colors.push(color);
+		
 		GeoTemConfig.datasets[id].color = color;
 
 		GeoTemConfig.assignedColorCount++;
