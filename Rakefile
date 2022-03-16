@@ -76,6 +76,10 @@ js/Storytelling/Storytelling.js
 js/Storytelling/StorytellingConfig.js
 js/Storytelling/StorytellingGui.js
 js/Storytelling/StorytellingWidget.js
+js/Datafilter/Datafilter.js
+js/Datafilter/DatafilterConfig.js
+js/Datafilter/DatafilterGui.js
+js/Datafilter/DatafilterWidget.js
 js/LineOverlay/LineOverlay.js
 js/LineOverlay/LineOverlayConfig.js
 js/LineOverlay/LineOverlayWidget.js

@@ -52,7 +52,8 @@ GeoTemConfig = {
 	incompleteData : true, // show/hide data with either temporal or spatial metadata
 	inverseFilter : true, // if inverse filtering is offered
 	mouseWheelZoom : true, // enable/disable zoom with mouse wheel on map & timeplot
-	language : 'en', // default language of GeoTemCo
+//	language : 'en', // default language of GeoTemCo
+	language : 'de', // default language of GeoTemCo
 	allowFilter : true, // if filtering should be allowed
 	highlightEvents : true, // if updates after highlight events
 	selectionEvents : true, // if updates after selection events
@@ -63,8 +64,9 @@ GeoTemConfig = {
                                          // default
 	loadColorFromDataset : false, // if DataObject color should be loaded automatically (from column "color")
 	allowColumnRenaming : true,
-	proxy : '/php/proxy.php?address=', // set this if a HTTP proxy shall be used (e.g. to bypass
-                                       // X-Domain problems)
+	//	proxy : 'http://b-dev20211109/geo-browser/PLATIN/php/proxy.php?address=', // set this if a HTTP proxy shall be used (e.g. to bypass
+	proxy : 'http://b-dev20211109.pk.de/geo-browser/PLATIN/php/proxy.php?address=', // set this if a HTTP proxy shall be used (e.g. to bypass
+			// X-Domain problems)
     dariahOwnStorageURL : dariahOwnStorageURL, // URL of DARIAH-DE OwnStorage
     datasheetEditorURL : datasheetEditorURL, // URL of the Datasheet Editor
     dariahOwnStorageBearerPrefix : 'bearer ',
@@ -213,6 +215,29 @@ GeoTemConfig = {
 	}]
 
 }
+
+/*
+	Language switcher - texts load from PLATIN/js/Util/Tooltips.js
+	actual: de - deutsch/german, en - englisch/english, 112  items
+ */
+var actualUrl = window.location.href;
+if (actualUrl.indexOf('?') > 0)
+{
+	var feld1 = actualUrl.split('?');
+	var feld2 = feld1[1].split('=');
+	GeoTemConfig.language = feld2[1].toLowerCase();
+}
+
+
+if (exhibition){
+	GeoTemConfig.mouseWheelZoom = false;
+	GeoTemConfig.allowFilter = false;
+}
+if (forEmbeddedUse)
+{
+	//GeoTemConfig.allowFilter = false;
+}
+
 
 GeoTemConfig.ie = false;
 GeoTemConfig.ie8 = false;

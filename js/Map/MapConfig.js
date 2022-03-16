@@ -273,7 +273,8 @@ function MapConfig(options) {
 		bingApiKey : 'none', // bing maps api key, see informations at http://bingmapsportal.com/
 		osmMaps : true, // enable/disable OSM maps
 		osmMapsMapQuest : false, // enable/disable OSM maps with MapQuest tiles
-		baseLayer : 'terrain', // initial layer to show (e.g. 'Google Streets')
+//		baseLayer : 'watercolor', // initial layer to show (e.g. 'Google Streets')
+		baseLayer : 'OpenStreetMap', // initial layer to show (e.g. 'Google Streets')
 		resetMap : true, // show/hide map reset button
 		countrySelect : true, // show/hide map country selection control button
 		polygonSelect : true, // show/hide map polygon selection control button
@@ -301,7 +302,8 @@ function MapConfig(options) {
 		maxLabelIncrease : 2, // maximum increase (in em) for the font size of a label
 		labelHover : false, // true, to update on label hover
 		ieHighlightLabel : "color: COLOR1; background-color: COLOR0; filter:'progid:DXImageTransform.Microsoft.Alpha(Opacity=80)';-ms-filter:'progid:DXImageTransform.Microsoft.Alpha(Opacity=80)';", // css code for a highlighted place label in IE
-		highlightLabel : "color: COLOR0; text-shadow: 0 0 0.4em black, 0 0 0.4em black, 0 0 0.4em black, 0 0 0.4em COLOR0;", // css code for a highlighted place label
+//		highlightLabel : "color: COLOR0; text-shadow: 0 0 0.4em black, 0 0 0.4em black, 0 0 0.4em black, 0 0 0.4em COLOR0;", // css code for a highlighted place label
+		highlightLabel : "color: COLOR0; text-shadow: 0 0 0.4em black, 0 0 0.4em black, 0 0 0.4em black, 0 0 0.4em COLOR1;", // css code for a highlighted place label
 		ieSelectedLabel : "color: COLOR1; font-weight: bold;", // css code for a selected place label in IE
 		selectedLabel : "color: COLOR1; font-weight: bold;", // css code for a selected place label
 		ieUnselectedLabel : "color: COLOR1; font-weight: normal;", // css code for an unselected place label in IE
@@ -341,6 +343,20 @@ function MapConfig(options) {
 	//but this will use circles as default shape
 	if (GeoTemConfig.allowUserShapeAndColorChange){
 		this.options.useGraphics = true;
+	}
+
+	/*
+		special use cases
+	 */
+	if (exhibition){
+		this.options.mapSelectionTools = false;
+	}
+
+	if (forEmbeddedUse)
+	{
+		this.options.countrySelect = false;
+		this.options.polygonSelect = false;
+
 	}
 
 };

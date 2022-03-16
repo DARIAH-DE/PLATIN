@@ -32,12 +32,12 @@ function PlacenameTags(circle, map) {
 	this.circle = circle;
 	this.map = map;
 
-    this.placeLabels
-	this.selectedLabel
+    this.placeLabels;
+	this.selectedLabel;
 
-	this.allLabel
-	this.othersLabel
-	this.unknownLabel
+	this.allLabel;
+	this.othersLabel;
+	this.unknownLabel;
 
 	this.calculate = function() {
 		this.calculateLabels();
@@ -283,17 +283,25 @@ function PlacenameTags(circle, map) {
 
 };
 
-function PackPlacenameTags(circle, map) {
+/*
+*		This class is never used in whole project
+ */
+
+/*
+ function PackPlacenameTags(circle, map) {
 
 	this.circle = circle;
 	this.map = map;
 
-	this.placeLabels
-	this.selectedLabel
+	this.placeLabels;
+	this.selectedLabel;
 
-	this.allLabel
-	this.othersLabel
-	this.unknownLabel
+	this.allLabel;
+	this.othersLabel;
+	this.unknownLabel;
+
+	console.log('label 2 - oben');
+	console.log(this);
 
 	this.calculate = function() {
 		this.calculateLabels();
@@ -667,4 +675,4 @@ function PackPlacenameTags(circle, map) {
 		$(this.centerDivOl).remove();
 	};
 
-};
+};*/

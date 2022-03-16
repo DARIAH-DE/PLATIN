@@ -405,7 +405,7 @@ DataloaderWidget.prototype = {
 		};
 
 		if (parametersArray.length>0){
-			parseParam(0)
+			parseParam(0);
 		}
 	}
 };

@@ -40,35 +40,56 @@ function FuzzyTimelineRangeSlider(parent) {
 	this.sliderParentTable = this.parent.gui.sliderTable;
 	var headerRow = $("<tr></tr>");
 	var controlsRow = $("<tr></tr>");
+	var strHtml = '';
 	$(this.sliderParentTable).append(headerRow).append(controlsRow);
 
-	headerRow.append("<td>Time start</td>");
-	this.rangeStart = document.createElement("select");
-	controlsRow.append($("<td></td>").append(this.rangeStart));
+	// At special use cases, timeStart  isn't necessary
+	// construct GeoTemConfig.getString("timeStart") used for multi language
+	if (!exhibition && !forEmbeddedUse) {
+		var strHtml = "<td>" + GeoTemConfig.getString("timeStart") + "</td>";
+		headerRow.append(strHtml);
+		//headerRow.append("<td>Time start</td>");
+		this.rangeStart = document.createElement("select");
+		controlsRow.append($("<td></td>").append(this.rangeStart));
+	}
 
-	headerRow.append("<td>Time unit</td>");
+	var strHtml = "<td>" + GeoTemConfig.getString("timeUnit") + "</td>";
+	headerRow.append(strHtml);
+	//headerRow.append("<td>Time unit</td>");
 	this.rangeDropdown = document.createElement("select");
 	controlsRow.append($("<td></td>").append(this.rangeDropdown));
 
-	headerRow.append("<td>Scaling</td>");
-	this.scalingDropdown = document.createElement("select");
-	controlsRow.append($("<td></td>").append(this.scalingDropdown));
-	$(this.scalingDropdown).append("<option>normal</option>");
-	$(this.scalingDropdown).append("<option>logarithm</option>");
-	$(this.scalingDropdown).append("<option>percentage</option>");
-	$(this.scalingDropdown).change(function(eventObject){
-		var scaleMode = $(rangeSlider.scalingDropdown).find("option:selected").text();
-		rangeSlider.parent.changeScaleMode(scaleMode);
-	});
+	if (!exhibition) {
+		var strHtml = "<td>" + GeoTemConfig.getString("scaling") + "</td>";
+		headerRow.append(strHtml);
+		//headerRow.append("<td>Scaling</td>");
+		this.scalingDropdown = document.createElement("select");
+		controlsRow.append($("<td></td>").append(this.scalingDropdown));
+
+		strHtml = "<option value='normal'>" + GeoTemConfig.getString("linearPlot") + "</option>";
+		$(this.scalingDropdown).append(strHtml);
+		strHtml = "<option value='logarithm'>" + GeoTemConfig.getString("logarithmicPlot") + "</option>";
+		$(this.scalingDropdown).append(strHtml);
+		strHtml = "<option value='percentage'>" + GeoTemConfig.getString("percentagePlot") + "</option>";
+		$(this.scalingDropdown).append(strHtml);
+		$(this.scalingDropdown).change(function (eventObject) {
+			var scaleMode = $(rangeSlider.scalingDropdown).find("option:selected")[0].value;
+			rangeSlider.parent.changeScaleMode(scaleMode);
+		});
+	}
 
 	headerRow.append("<td>Animation</td>");
 	this.startAnimation = document.createElement("div");
+	this.startAnimation.title = GeoTemConfig.getString("playButton");
 	$(this.startAnimation).addClass("smallButton playDisabled");
 	this.pauseAnimation = document.createElement("div");
+	this.pauseAnimation.title = GeoTemConfig.getString("animationPause");
 	$(this.pauseAnimation).addClass("smallButton pauseDisabled");
 	controlsRow.append($("<td></td>").append(this.startAnimation).append(this.pauseAnimation));
 
-	headerRow.append("<td>Dated objects</td>");
+	var strHtml = "<td>" + GeoTemConfig.getString("datedObjects") + "</td>";
+	headerRow.append(strHtml);
+	//headerRow.append("<td>Dated objects</td>");
 	this.numberDatedObjects = 0;
 	this.numberDatedObjectsDIV = document.createElement("div");
 	$(this.numberDatedObjectsDIV).addClass("ddbElementsCount");

@@ -26,7 +26,9 @@
  */
 function DataloaderConfig(options) {
 
-	var dl = 'https://geobrowser.de.dariah.eu/';
+//	var dl = 'https://geobrowser.de.dariah.eu/';
+	var dl = 'http://b-dev20211109.pk.de/geo-browser/';
+	// Diese Datei ist es nicht - etah2022.csv nicht im Auswahlmenü
 
 	this.options = {
 		staticKML : [

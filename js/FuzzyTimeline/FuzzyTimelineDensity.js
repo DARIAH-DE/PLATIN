@@ -78,9 +78,6 @@ FuzzyTimelineDensity.prototype = {
 		} else {
 			chartData.push([maxPlotedDate+1,0]);
 		}
-		
-
-		
 		return chartData;
 	},
 	
@@ -180,6 +177,18 @@ FuzzyTimelineDensity.prototype = {
 		} else if (density.singleTickWidth<12*31*24*60*60*1000){
 			axisFormatString = "%Y/%m";
 			tooltipFormatString = "YYYY/MM";
+		}
+
+		// For special use cases you can configure a fix label format at x-axis (time)
+		// configuration: PLATIN/js/FuzzyTimeline/FuzzyTimelineConfig.js
+		// actual use case: exhibition
+		if( this.options.xAxisFormat != '')
+		{
+			axisFormatString = this.options.xAxisFormat;
+		}
+		if( this.options.xAxisTooltip != '')
+		{
+			tooltipFormatString = this.options.xAxisTooltip;
 		}
 
 		//credits: Pimp Trizkit @ http://stackoverflow.com/a/13542669

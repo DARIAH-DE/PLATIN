@@ -63,6 +63,18 @@ function MapGui(map, div, options, iid) {
 	this.container.appendChild(toolbarTable);
 	this.mapToolbar = toolbarTable;
 
+	/*
+		for special use cases: take toolbar out of map - toolbar haven't overlap map
+	 */
+	if (exhibition){
+		this.mapToolbar.style.position.value = 'relative';
+		this.mapToolbar.style.top = '-43px';
+	}
+	if (forEmbeddedUse){
+		this.mapToolbar.style.position.value = 'relative';
+		this.mapToolbar.style.top = '-53px';
+	}
+
 	var titles = document.createElement("tr");
 	toolbarTable.appendChild(titles);
 	var tools = document.createElement("tr");
@@ -115,33 +127,39 @@ function MapGui(map, div, options, iid) {
 		tools.appendChild(mapSum);
 	}
 
-	this.lockTitle = document.createElement("td");
-	titles.appendChild(this.lockTitle);
-	this.lockIcon = document.createElement("td");
-	var lockButton = document.createElement("div");
-	$(lockButton).addClass('mapControl');
-	$(lockButton).attr('title', 'Lock map state');
-	var activateLock = function() {
-		map.navigation.deactivate();
-	}
-	var deactivateLock = function() {
-		map.navigation.activate();
-	}
-	var lockMapControl = new MapControl(this.map, lockButton, 'lock', activateLock, deactivateLock);
-	tools.appendChild(lockMapControl.button);
+	/*
+		look and fullscreen aren't necessary for exhibition mode
+	 */
+	if (!(exhibition)) {
+		this.lockTitle = document.createElement("td");
+		titles.appendChild(this.lockTitle);
+		this.lockTitle.innerHTML = '&nbsp;';
+		this.lockIcon = document.createElement("td");
+		var lockButton = document.createElement("div");
+		$(lockButton).addClass('mapControl');
+		$(lockButton).attr('title', 'Lock map state');
+		var activateLock = function () {
+			map.navigation.deactivate();
+		}
+		var deactivateLock = function () {
+			map.navigation.activate();
+		}
+		var lockMapControl = new MapControl(this.map, lockButton, 'lock', activateLock, deactivateLock);
+		tools.appendChild(lockMapControl.button);
 
-	this.fullscreenTitle = document.createElement("td");
-	titles.appendChild(this.fullscreenTitle);
-	this.fullscreenIcon = document.createElement("td");
-	var fullscreenButton = document.createElement("div");
-	$(fullscreenButton).addClass('mapControl');
-	$(fullscreenButton).attr('title', 'Fullscreen');
-	var prevWidth;
-	var prevHeight;
-	var prevParent;
-	var activateFullscreen = function() {
-		$div=$(div);
-		$window = $(window);
+		this.fullscreenTitle = document.createElement("td");
+		titles.appendChild(this.fullscreenTitle);
+		this.fullscreenTitle.innerHTML = '&nbsp;';
+		this.fullscreenIcon = document.createElement("td");
+		var fullscreenButton = document.createElement("div");
+		$(fullscreenButton).addClass('mapControl');
+		$(fullscreenButton).attr('title', 'Fullscreen');
+		var prevWidth;
+		var prevHeight;
+		var prevParent;
+		var activateFullscreen = function () {
+			$div = $(div);
+			$window = $(window);
 
 		prevWidth = $div.width();
 		prevHeight = $div.height();
@@ -166,12 +184,37 @@ function MapGui(map, div, options, iid) {
 	 	$div.width(prevWidth);
 		$div.height(prevHeight);
 
-		gui.resize();
+			gui.resize();
+		}
+		var fullscreenMapControl = new MapControl(this.map, fullscreenButton, 'fullscreen', activateFullscreen, deactivateFullscreen);
+		tools.appendChild(fullscreenMapControl.button);
 	}
-	var fullscreenMapControl = new MapControl(this.map, fullscreenButton, 'fullscreen', activateFullscreen, deactivateFullscreen);
-	tools.appendChild(fullscreenMapControl.button);
 
-	if (navigator.geolocation && options.geoLocation) {
+	/*
+		At this moment: only reload map container
+	 */
+	if (exhibition || forEmbeddedUse)
+		{
+		this.reloadTitle = document.createElement("td");
+		titles.appendChild(this.reloadTitle);
+		this.reloadTitle.innerHTML = '&nbsp;';
+		this.reloadIcon = document.createElement("td");
+		this.reloadIcon.className = 'mapControl';
+		this.reloadIcon.innerHTML = '<span style="color: #D5771B; margin-left:10px; margin-right: 10px; padding: 5px; background-color: #DFDFDF; position: relative;">' +
+			'<i class="icon-repeat"></i>' +
+			'</span>';
+		tools.appendChild(this.reloadIcon);
+
+		this.reloadIcon.onclick = function() {
+			if (map.mds.getAllObjects() == null){
+				map.openlayersMap.setCenter(new OpenLayers.LonLat(0, 0));
+				map.openlayersMap.zoomTo(0);
+			}
+			gui.map.drawObjectLayer(true);
+		}
+	}
+
+	if (navigator.geolocation && options.geoLocation && !(exhibition)) {
 		this.geoActive = false;
 		this.geoLocation = document.createElement("div");
 		this.geoLocation.setAttribute('class', 'geoLocationOff');
@@ -182,10 +225,10 @@ function MapGui(map, div, options, iid) {
 			var changeStyle = function() {
 				if (gui.geoActive) {
 					gui.geoLocation.setAttribute('class', 'geoLocationOn');
-					gui.geoLocation.title = GeoTemConfig.getString(GeoTemConfig.language, 'deactivateGeoLocation');
+					gui.geoLocation.title = GeoTemConfig.getString('deactivateGeoLocation');
 				} else {
 					gui.geoLocation.setAttribute('class', 'geoLocationOff');
-					gui.geoLocation.title = GeoTemConfig.getString(GeoTemConfig.language, 'activateGeoLocation');
+					gui.geoLocation.title = GeoTemConfig.getString('activateGeoLocation');
 				}
 			}
 			if (!gui.geoActive) {
@@ -378,6 +421,38 @@ function MapGui(map, div, options, iid) {
 			var basemap = this.map.baseLayers[i];
 			var name = basemap.name;
 			if (basemap.title) name = basemap.title;
+
+			// For use case "exhibition" - display without browser controls - Popup window
+			var mapCopyright = basemap.attribution;
+			if (mapCopyright != null) {
+				var copyDummy = document.createElement('span');
+				copyDummy.innerHTML = mapCopyright;
+				// all link elements
+				var targetEles = copyDummy.getElementsByTagName('a');
+				var anzEles = targetEles.length;
+				for (var j = 0; j < anzEles; j++) {
+					if (!exhibition) {
+						targetEles[j].target = '_blank';
+					} else {
+						var strHref = targetEles[j].href;
+						// reproduce a-href -> span-onclick
+						var att = document.createAttribute("onclick");
+						att.value = "window.open('" + strHref + "', 'licenseDisplay', 'width=800,height=600'); return false";
+						targetEles[j].setAttributeNode(att);
+						targetEles[j].removeAttribute('href');
+						// show as link
+						att = document.createAttribute("class");
+						att.value = "mapLizenz";
+						targetEles[j].setAttributeNode(att);
+					}
+					var strHtml = copyDummy.innerHTML;
+					// change element a to span
+					strHtml = strHtml.replaceAll("<a", "<span");
+					strHtml = strHtml.replaceAll("</a", "</span");
+					basemap.attribution = strHtml;
+				}
+			}
+
 			addMap(name, i);
 		}
 		this.mapTypeDropdown = new Dropdown(this.mapTypeSelector, maps, GeoTemConfig.getString('selectMapType'));

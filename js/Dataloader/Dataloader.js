@@ -34,6 +34,11 @@ function Dataloader(parent) {
 	this.options = parent.options;
 
 	this.initialize();
+
+	if (exhibition || forEmbeddedUse) {
+		this.exhibitionLoader();
+	}
+
 }
 
 var addToProxysWhitelistMessage1 = "Could not load data!\n\nPlease check your URL <";
@@ -89,6 +94,9 @@ Dataloader.prototype = {
 		return fileName;
 	},
 
+	/*
+		GeoTemConfig - central PLATIN object; central dataset management
+	 */
 	distributeDataset : function(dataSet) {
 		GeoTemConfig.addDataset(dataSet);
 	},
@@ -97,9 +105,13 @@ Dataloader.prototype = {
 		GeoTemConfig.addDatasets(datasets);
 	},
 
+	/*
+		Initialize origin part "Load data" - fieldset "dataloaderContainerDiv"
+	 */
 	addStaticLoader : function() {
 		if (this.options.staticKML.length > 0){
-			$(this.parent.gui.loaderTypeSelect).append("<option value='StaticLoader'>Static data</option>");
+			var strHtml = "<option value='StaticLoader'>" + GeoTemConfig.getString("StaticLoader") + "</option>";
+			$(this.parent.gui.loaderTypeSelect).append(strHtml);
 
 			this.StaticLoaderTab = document.createElement("div");
 			$(this.StaticLoaderTab).attr("id","StaticLoader");
@@ -127,7 +139,7 @@ Dataloader.prototype = {
 				$(staticKMLList).append("</optgroup>");
 
 			this.loadStaticKMLButton = document.createElement("button");
-			$(this.loadStaticKMLButton).text("Load");
+			$(this.loadStaticKMLButton).text(GeoTemConfig.getString("load"));
 			$(this.loadStaticKMLButton).addClass(GeoTemConfig.buttonCssClass);
     			$(this.StaticLoaderTab).append(this.loadStaticKMLButton);
 
@@ -155,7 +167,8 @@ Dataloader.prototype = {
 	},
 
     addKMLLoader : function() {
-	$(this.parent.gui.loaderTypeSelect).append("<option value='KMLLoader'>KML file URL</option>");
+		var strHtml = "<option value='KMLLoader'>" + GeoTemConfig.getString("KMLLoader") + "</option>";
+		$(this.parent.gui.loaderTypeSelect).append(strHtml);
 
 	this.KMLLoaderTab = document.createElement("div");
 	$(this.KMLLoaderTab).attr("id","KMLLoader");
@@ -166,7 +179,7 @@ Dataloader.prototype = {
 	$(this.KMLLoaderTab).append(this.kmlURL);
 
 	this.loadKMLButton = document.createElement("button");
-	$(this.loadKMLButton).text("Load KML");
+	$(this.loadKMLButton).text(GeoTemConfig.getString("loadKML"));
 	$(this.KMLLoaderTab).append(this.loadKMLButton);
 
 	$(this.loadKMLButton).click($.proxy(function(){
@@ -195,7 +208,8 @@ Dataloader.prototype = {
     },
 
 	addKMZLoader : function() {
-		$(this.parent.gui.loaderTypeSelect).append("<option value='KMZLoader'>KMZ file URL</option>");
+		var strHtml = "<option value='KMZLoader'>" + GeoTemConfig.getString("KMZLoader") + "</option>";
+		$(this.parent.gui.loaderTypeSelect).append(strHtml);
 
 		this.KMZLoaderTab = document.createElement("div");
 		$(this.KMZLoaderTab).attr("id","KMZLoader");
@@ -206,7 +220,7 @@ Dataloader.prototype = {
 		$(this.KMZLoaderTab).append(this.kmzURL);
 
 		this.loadKMZButton = document.createElement("button");
-		$(this.loadKMZButton).text("Load KMZ")
+		$(this.loadKMZButton).text(GeoTemConfig.getString("loadKMZ"));
 		$(this.KMZLoaderTab).append(this.loadKMZButton);
 
 		$(this.loadKMZButton).click($.proxy(function(){
@@ -235,7 +249,8 @@ Dataloader.prototype = {
 	},
 
 	addCSVLoader : function() {
-		$(this.parent.gui.loaderTypeSelect).append("<option value='CSVLoader'>CSV file URL</option>");
+		var strHtml = "<option value='CSVLoader'>" + GeoTemConfig.getString("CSVLoader") + "</option>";
+		$(this.parent.gui.loaderTypeSelect).append(strHtml);
 
 		this.CSVLoaderTab = document.createElement("div");
 		$(this.CSVLoaderTab).attr("id","CSVLoader");
@@ -246,7 +261,7 @@ Dataloader.prototype = {
 		$(this.CSVLoaderTab).append(this.csvURL);
 
 		this.loadCSVButton = document.createElement("button");
-		$(this.loadCSVButton).text("Load CSV");
+		$(this.loadCSVButton).text(GeoTemConfig.getString("loadCSV"));
 		$(this.CSVLoaderTab).append(this.loadCSVButton);
 
 		$(this.loadCSVButton).click($.proxy(function(){
@@ -272,7 +287,8 @@ Dataloader.prototype = {
 	},
 
 	addLocalKMLLoader : function() {
-		$(this.parent.gui.loaderTypeSelect).append("<option value='LocalKMLLoader'>Local KML file</option>");
+		var strHtml = "<option value='LocalKMLLoader'>" + GeoTemConfig.getString("localKMLLoader") + "</option>";
+		$(this.parent.gui.loaderTypeSelect).append(strHtml);
 
 		this.localKMLLoaderTab = document.createElement("div");
 		$(this.localKMLLoaderTab).attr("id","LocalKMLLoader");
@@ -283,7 +299,7 @@ Dataloader.prototype = {
 		$(this.localKMLLoaderTab).append(this.kmlFile);
 
 		this.loadLocalKMLButton = document.createElement("button");
-		$(this.loadLocalKMLButton).text("Load KML");
+		$(this.loadLocalKMLButton).text(GeoTemConfig.getString("loadKML"));
 		$(this.localKMLLoaderTab).append(this.loadLocalKMLButton);
 
 		$(this.loadLocalKMLButton).click($.proxy(function(){
@@ -309,7 +325,8 @@ Dataloader.prototype = {
 	},
 
 	addLocalCSVLoader : function() {
-		$(this.parent.gui.loaderTypeSelect).append("<option value='LocalCSVLoader'>Local CSV file</option>");
+		var strHtml = "<option value='LocalKMLLoader'>" + GeoTemConfig.getString("localCSVLoader") + "</option>";
+		$(this.parent.gui.loaderTypeSelect).append(strHtml);
 
 		this.localCSVLoaderTab = document.createElement("div");
 		$(this.localCSVLoaderTab).attr("id","LocalCSVLoader");
@@ -320,7 +337,7 @@ Dataloader.prototype = {
 		$(this.localCSVLoaderTab).append(this.csvFile);
 
 		this.loadLocalCSVButton = document.createElement("button");
-		$(this.loadLocalCSVButton).text("Load CSV");
+		$(this.loadLocalCSVButton).text(GeoTemConfig.getString("loadCSV"));
 		$(this.localCSVLoaderTab).append(this.loadLocalCSVButton);
 
 		$(this.loadLocalCSVButton).click($.proxy(function(){
@@ -368,10 +385,13 @@ Dataloader.prototype = {
 
 		//only show if there are datasets
 		if (localStorageDatasetCount > 0)
-			$(this.parent.gui.loaderTypeSelect).append("<option value='LocalStorageLoader'>browser storage</option>");
+		{
+			var strHtml = "<option value='LocalStorageLoader'>" + GeoTemConfig.getString("localStorageLoader") + "</option>";
+			$(this.parent.gui.loaderTypeSelect).append(strHtml);
+		}
 
 		this.loadLocalStorageButton = document.createElement("button");
-		$(this.loadLocalStorageButton).text("Load");
+		$(this.loadLocalStorageButton).text(GeoTemConfig.getString("load"));
 		$(this.localStorageLoaderTab).append(this.loadLocalStorageButton);
 
 		$(this.loadLocalStorageButton).click($.proxy(function(){
@@ -400,7 +420,8 @@ Dataloader.prototype = {
 			return o;
 		}
 
-		$(this.parent.gui.loaderTypeSelect).append("<option value='LocalXLSXLoader'>Local XLS/XLSX file</option>");
+		var strHtml = "<option value='LocalXLSXLoader'>" + GeoTemConfig.getString("localXLSXLoader") + "</option>";
+		$(this.parent.gui.loaderTypeSelect).append(strHtml);
 
 		this.LocalXLSXLoader = document.createElement("div");
 		$(this.LocalXLSXLoader).attr("id","LocalXLSXLoader");
@@ -411,7 +432,7 @@ Dataloader.prototype = {
 		$(this.LocalXLSXLoader).append(this.xlsxFile);
 
 		this.loadLocalXLSXButton = document.createElement("button");
-		$(this.loadLocalXLSXButton).text("Load XLS/XLSX");
+		$(this.loadLocalXLSXButton).text(GeoTemConfig.getString("loadExcel"));
 		$(this.LocalXLSXLoader).append(this.loadLocalXLSXButton);
 
 		$(this.loadLocalXLSXButton).click($.proxy(function(){
@@ -447,4 +468,29 @@ Dataloader.prototype = {
 
 		$(this.parent.gui.loaders).append(this.LocalXLSXLoader);
 	},
+	// end of "dataloaderContainerDiv"
+
+	/*
+		for special use cases - exhibition, poster, for embedded display
+		Only one dataset, that has configurated in embed/js/specialUses.geobro.conf.js
+		Explicit loading
+	 */
+	exhibitionLoader : function () {
+			var dataLoader = this;
+			var csvURL = exhibitionFile;
+			if (csvURL.length === 0)
+				return;
+			var origURL = csvURL;
+			var fileName = dataLoader.getFileName(csvURL);
+
+			// Choose proxy or direct access in GeoTemConfig.getCSV().
+			GeoTemConfig.getCsv(csvURL, function(json){
+				if ((typeof json !== "undefined") && (json.length > 0)) {
+					var dataSet = new Dataset(GeoTemConfig.loadJson(json), fileName, origURL);
+					if (dataSet != null)
+						dataLoader.distributeDataset(dataSet);
+				} else
+					alert(addToProxysWhitelistMessage1 + csvURL + addToProxysWhitelistMessage2);
+			});
+	}
 };

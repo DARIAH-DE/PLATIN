@@ -154,7 +154,7 @@ FuzzyTimelineRangeBars.prototype = {
 		
 		var tickCount = rangeBar.tickSpans.length-1;
 		var ticks = [];
-		
+
 		var axisFormatString = "YYYY";
 		if (rangeBar.spanWidth<60*1000){
 			axisFormatString = "YYYY/MM/DD HH:mm:ss";
@@ -167,6 +167,14 @@ FuzzyTimelineRangeBars.prototype = {
 		} else if (rangeBar.spanWidth<12*31*24*60*60*1000){
 			axisFormatString = "YYYY/MM";
 		}
+
+		// For special use cases you can configure a fix label format at x-axis (time)
+		// Configuration: PLATIN/js/FuzzyTimeline/FuzzyTimelineConfig.js
+		if( this.options.xAxisFormat !== '')
+		{
+			axisFormatString = this.options.xAxisTooltip;
+		}
+
 		//only show ~10 labels on the x-Axis (increase if zoomed)
 		var labelModulo = Math.ceil(tickCount/(10*rangeBar.parent.zoomFactor));
 		for (var i = 0; i < tickCount; i++){
@@ -178,7 +186,7 @@ FuzzyTimelineRangeBars.prototype = {
 				tickLabel = tickLabel.substring(1);
 			ticks[i] = [i,tickLabel];
 		}
-		
+
 		var options = {
 				series:{
 	                bars:{show: true}

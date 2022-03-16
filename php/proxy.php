@@ -22,9 +22,14 @@
 
 	//Hosts that are allowed to download from in RegEx form. (e.g. "/.*dropbox\.com/")
 	//If this array is empty, all hosts are allowed.
-	$validHosts = array(
-			"/localhost/",
-	);
+	$validHosts = array();
+	$validHosts[] = '/localhost/';
+	$validHosts[] = '/b-dev20211109.pk.de/';
+
+/*	$strFaenger = print_r($validHosts, true);
+$strConsole = "<script>console.log('console: ".$strFaenger."');</script>";
+echo $strConsole;*/
+//print_r($validHosts);
 
 	if (isset($_REQUEST['address'])){
 

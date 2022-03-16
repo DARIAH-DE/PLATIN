@@ -58,7 +58,7 @@ FuzzyTimelineWidget.prototype = {
 
 	initWidget : function(data) {
 		var fuzzyTimeline = this;
-		
+
 		delete fuzzyTimeline.overallMin;
 		delete fuzzyTimeline.overallMax;
 		
@@ -389,7 +389,7 @@ FuzzyTimelineWidget.prototype = {
 		
 		fuzzyTimeline.core.triggerSelection(selection);		
 	},
-	
+
 	addHandle : function(x1,x2){
 		var fuzzyTimeline = this;
 		//make sure the interval is ordered correctly
@@ -456,7 +456,7 @@ FuzzyTimelineWidget.prototype = {
 			leftHandle.style.top = plotHeight/2-$(leftHandle).height()/2 + "px";
 			
 			var rightHandle = document.createElement("div");
-			rightHandle.title = GeoTemConfig.getString('leftHandle');
+			rightHandle.title = GeoTemConfig.getString('rightHandle');
 			rightHandle.style.backgroundImage = "url(" + GeoTemConfig.path + "rightHandle.png" + ")";
 			rightHandle.setAttribute('class', 'plotHandle plotHandleIcon');
 			rightHandle.style.visibility = "visible";

@@ -42,9 +42,23 @@ function FuzzyTimelineConfig(options) {
 			//if set to true, a span that creates more "bars" than fit on the screen
 			//will lead to a width-increase of the chart (and a scroll bar appears)
 			showAllPossibleSpans : true,
+
+		// For special use cases you can configure a fix label format at x-axis (time)
+		xAxisFormat : '',
+		xAxisTooltip : '',
 	};
 	if ( typeof options != 'undefined') {
 		$.extend(this.options, options);
+	}
+
+	if (exhibition)
+	{
+		// math.: Stützstellen - supporting points - calculate number of supporting points
+		this.options.maxDensityTicks = Math.floor((window.screen.availWidth - 70) / 5);
+
+		// label time format at x-axis
+		this.options.xAxisFormat = '%Y';
+		this.options.xAxisTooltip = 'YYYY';
 	}
 
 };

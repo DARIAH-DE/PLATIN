@@ -421,13 +421,39 @@ MapWidget.prototype = {
 			this.modifyArea.mode = OpenLayers.Control.ModifyFeature.RESHAPE;
 
 		}
+		if (exhibition){
+		//	console.log('ich kenne mich');
+		}
+
+		/*
+			It's necessary to built PlacenameTags before instance map popups for circles
+			Normaly it was init on hoverSelect.
+			On touchscreen, there isn't possible to get this event.
+			Build process has used at 2 access points - hoverSelect + onFeatureSelect
+		 */
+		var builtPlacenameTag = function( event) {
+
+			var circle = event.feature.parent;
+			if (!(circle instanceof CircleObject)) {
+				return;
+			}
+			if ( typeof map.placenameTags != 'undefined') {
+				map.placenameTags.remove();
+			}
+
+			circle.placenameTags = new PlacenameTags(circle, map);
+			map.placenameTags = circle.placenameTags;
+
+			circle.placenameTags.calculate();
+
+		};
 
 		// calculates the tag cloud
 		// manages hover selection of point objects
 		var hoverSelect = function(event) {
 			var object = event.feature;
 			if (object.geometry instanceof OpenLayers.Geometry.Point) {
-				if ( typeof map.placenameTags != 'undefined') {
+/*				if ( typeof map.placenameTags != 'undefined') {
 					map.placenameTags.remove();
 				}
 				var circle = event.feature.parent;
@@ -436,14 +462,17 @@ MapWidget.prototype = {
 					map.placenameTags = circle.placenameTags;
 				} else {
 					return;
-					/*
-					 event.feature.style.fillOpacity = 0.2;
-					 event.feature.style.strokeOpacity = 1;
-					 map.objectLayer.drawFeature(event.feature);
-					 circle.placenameTags = new PackPlacenameTags(circle,map);
-					 */
+
+					 // event.feature.style.fillOpacity = 0.2;
+					 // event.feature.style.strokeOpacity = 1;
+					 // map.objectLayer.drawFeature(event.feature);
+					 // circle.placenameTags = new PackPlacenameTags(circle,map);
+
 				}
-				circle.placenameTags.calculate();
+				circle.placenameTags.calculate();*/
+
+				// substitute built process on top
+				builtPlacenameTag(event);
 				map.mapCircleHighlight(object.parent, false);
 				if ( typeof map.featureInfo != 'undefined') {
 					map.featureInfo.deactivate();
@@ -499,6 +528,11 @@ MapWidget.prototype = {
 		var onFeatureSelect = function(event, evt) {
 			if (!(event.feature.geometry instanceof OpenLayers.Geometry.Point)) {
 				return;
+			}
+
+			if (isTouch)
+			{
+				builtPlacenameTag(event);
 			}
 			var circle = event.feature.parent;
 			if (map.options.multiSelection && map.ctrlKey) {
@@ -607,6 +641,7 @@ MapWidget.prototype = {
 					);
 				}
 				this.baseLayers.push(layer);
+				this.openlayersMap.addLayers([layer]);
 			}
 		}
 		this.gui.setMapsDropdown();
@@ -665,6 +700,7 @@ MapWidget.prototype = {
 			this.baseLayers.push(hybrid);
 			this.baseLayers.push(aerial);
 		}
+
 		if (this.options.osmMaps) {
 			this.baseLayers.push(new OpenLayers.Layer.OSM('OpenStreetMap', '', {
 				sphericalMercator : true,
@@ -685,24 +721,24 @@ MapWidget.prototype = {
 	            }
 			));
 		}
+		for (var i = 0; i < this.baseLayers.length; i++) {
+			this.openlayersMap.addLayers([this.baseLayers[i]]);
+		}
 		if (this.options.alternativeMap) {
 			if (!(this.options.alternativeMap instanceof Array))
 				this.options.alternativeMap = [this.options.alternativeMap];
 			this.addBaseLayers(this.options.alternativeMap);
 		}
+
 		this.setBaseLayerByName(this.options.baseLayer);
 	},
 
 	setBaseLayerByName : function(name){
-		var found = false;
 		for (var i = 0; i < this.baseLayers.length; i++) {
 			if (this.baseLayers[i].name === name) {
 				this.setMap(i);
-				found = true;
-				break;
 			}
 		}
-		if (!found) this.setMap(0);
 	},
 
 	getBaseLayerName : function() {
@@ -777,7 +813,7 @@ MapWidget.prototype = {
 		this.baseLayers.push(layer);
 		this.openlayersMap.addLayers([layer]);
 		for (var i in this.baseLayers ) {
-			if (this.baseLayers[i].name === this.options.baseLayer) {
+			if (this.baseLayers[i].name == this.options.baseLayer) {
 				this.setMap(i);
 			}
 		}
@@ -1351,7 +1387,7 @@ MapWidget.prototype = {
 		} else {
 			this.openlayersMap.zoomTo(Math.round(zoom));
 			if (this.zoomSlider) {
-				this.zoomSlider.setValue(Math.round(zoom));
+				this.zoomSlider.setValue(this.getZoom());
 			}
 		}
 		return true;
@@ -1380,13 +1416,12 @@ MapWidget.prototype = {
 
 	setMap : function(index) {
 		this.baselayerIndex = index;
-		var currentBasemap = this.baseLayers[index];
 		if (this.selectCountry) {
 			//			if( this.wmsOverlays.length == 0 ){
 			this.deactivateCountrySelector();
 			//			}
 		}
-		if (currentBasemap instanceof OpenLayers.Layer.WMS) {
+		if (this.baseLayers[index] instanceof OpenLayers.Layer.WMS) {
 			//			if( this.wmsOverlays.length == 0 ){
 			this.activateCountrySelector(this.baseLayers[index]);
 			//			}
@@ -1395,23 +1430,20 @@ MapWidget.prototype = {
 				this.countrySelectionControl.disable();
 			}
 		}
-		this.openlayersMap.addLayers([currentBasemap]);
-		if (currentBasemap.resolutions)
-			this.resolutions = currentBasemap.resolutions;
-		this.openlayersMap.setBaseLayer(currentBasemap);
-		this.openlayersMap.zoomTo(Math.floor(this.getZoom()));
 
-		if (currentBasemap.name === 'OpenStreetMap') {
+		this.openlayersMap.zoomTo(Math.floor(this.getZoom()));
+		this.openlayersMap.setBaseLayer(this.baseLayers[index]);
+		if (this.baseLayers[index].name == 'OpenStreetMap') {
 			this.gui.osmLink.style.visibility = 'visible';
 		} else {
 			this.gui.osmLink.style.visibility = 'hidden';
 		}
-		if (currentBasemap.name === 'OpenStreetMap (MapQuest)') {
+		if (this.baseLayers[index].name == 'OpenStreetMap (MapQuest)') {
 			this.gui.osmMapQuestLink.style.visibility = 'visible';
 		} else {
 			this.gui.osmMapQuestLink.style.visibility = 'hidden';
 		}
-		this.triggerMapChanged(currentBasemap.name);
+		this.triggerMapChanged(this.baseLayers[index].name);
 	},
 
 	//vhz added title to buttons
@@ -1479,21 +1511,21 @@ MapWidget.prototype = {
 	},
 
 	getZoom : function() {
-	    //calculate zoom from active resolution
+    	//calculate zoom from active resolution
         var resolution = this.openlayersMap.getResolution();
         var zoom = this.resolutions.indexOf(resolution);
-        if (zoom === -1){
+        if (zoom == -1){
             //fractional zoom
             for (zoom = 0; zoom < this.resolutions.length; zoom++){
                 if (resolution>=this.resolutions[zoom]){
                     break;
                 }
             }
-            if (zoom === this.resolutions.length){
+            if (zoom == this.resolutions.length){
                 zoom--;
             }
         }
-        return zoom;
+        return(zoom);
 	},
 
 	setMarker : function(lon, lat) {
