@@ -273,10 +273,21 @@ DataloaderWidget.prototype = {
 		var datasets = dataLoaderWidget.datasets;
 		var parametersHash = $.url().param();
 		var parametersArray = [];
+		// Encoding the param part (fixes #98 - https://gitlab.gwdg.de/dariah-de/geo-browser/-/issues/98).
 		$.each(parametersHash,function(paramName, paramValue){
-			parametersArray.push({paramName:paramName, paramValue:paramValue});
+			var newParamValue = paramValue;
+			// Split for first and param part (if existing).
+			if (paramValue.lastIndexOf("?") != -1) {
+				var first = paramValue.substr(0, paramValue.lastIndexOf("?"));
+				var last = paramValue.substr(paramValue.lastIndexOf("?") + 1);
+			  // Encode param part, add "=" and "&" unencoded again, both belong to the URL, not to the param part, at lease I suppose so! :-)
+			  var encodedParam = encodeURIComponent(last).replaceAll("%3D", "=").replaceAll("%26", "&");
+			  var newParamValue = first + "?" + encodedParam;
+			}
+			// Add encoded param value to dataset URL to get.
+			parametersArray.push({paramName:paramName, paramValue:newParamValue});
 		});
-
+		
 		var parseParam = function(paramNr){
 
 			if (paramNr==parametersArray.length){
@@ -310,11 +321,12 @@ DataloaderWidget.prototype = {
 			var fileName = dataLoaderWidget.dataLoader.getFileName(paramValue);
 			var origURL = paramValue;
 			if (paramName.toLowerCase().startsWith("kml")){
-                // Add proxy to KML data URL.
-                // FIXME Use direct download for KML files, too!
-                if (typeof GeoTemConfig.proxy != 'undefined') {
-                    paramValue = GeoTemConfig.proxy + paramValue;
-                }
+				// Add proxy to KML data URL.
+        // TODO Use direct download for KML files, too!
+        if (typeof GeoTemConfig.proxy != 'undefined') {
+				  // Add  encoded params here, too! (again fixes #98).
+					paramValue = GeoTemConfig.proxy + encodeURIComponent(paramValue);
+        }
 				GeoTemConfig.getKml(paramValue, function(kmlDoc){
 					var dataSet = new Dataset(GeoTemConfig.loadKml(kmlDoc), fileName, origURL, "kml");
 					if (dataSet != null){
