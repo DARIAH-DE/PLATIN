@@ -321,10 +321,16 @@ DataloaderWidget.prototype = {
 			var fileName = dataLoaderWidget.dataLoader.getFileName(paramValue);
 			var origURL = paramValue;
 			if (paramName.toLowerCase().startsWith("kml")){
+
+				console.log("ORIG URL: " + origURL);
+
                 // Add proxy to KML data URL.
                 // FIXME Use direct download for KML files, too!
                 if (typeof GeoTemConfig.proxy != 'undefined') {
-                    paramValue = GeoTemConfig.proxy + paramValue;
+
+									console.log("PROXY: " +encodeURIComponent(paramValue));
+
+									paramValue = GeoTemConfig.proxy + encodeURIComponent(paramValue);
                 }
 				GeoTemConfig.getKml(paramValue, function(kmlDoc){
 					var dataSet = new Dataset(GeoTemConfig.loadKml(kmlDoc), fileName, origURL, "kml");
