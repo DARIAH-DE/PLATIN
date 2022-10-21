@@ -285,7 +285,8 @@ DataloaderWidget.prototype = {
 			  var newParamValue = first + "?" + encodedParam;
 			}
 
-			console.log("PARAM: " + newParamValue);
+			// TODO Remove debug logging!
+			console.log("(ENCODED) PARAM: " + newParamValue);
 
 			// Add encoded param value to dataset URL to get.
 			parametersArray.push({paramName:paramName, paramValue:newParamValue});
@@ -331,7 +332,8 @@ DataloaderWidget.prototype = {
 					paramValue = GeoTemConfig.proxy + encodeURIComponent(paramValue);
         }
 
-				console.log("PARAM: " + paramValue);
+				// TODO Remove debug logging!
+				console.log("(PROXY) PARAM: " + paramValue);
 
 				GeoTemConfig.getKml(paramValue, function(kmlDoc){
 					var dataSet = new Dataset(GeoTemConfig.loadKml(kmlDoc), fileName, origURL, "kml");

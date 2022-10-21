@@ -630,9 +630,6 @@ GeoTemConfig.getKml = function(url,asyncFunc) {
 		    }
 		}
 	});
-
-	console.log("DATA: " + data);
-
 	if( !async ){
 		return data;
 	}
