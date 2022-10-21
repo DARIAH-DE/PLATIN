@@ -609,9 +609,6 @@ GeoTemConfig.convertCsv = function(text){
  * @return xml dom object of given file
  */
 GeoTemConfig.getKml = function(url,asyncFunc) {
-
-	console.log("URL: " + url);
-
 	var data;
 	var async = false;
 	if( asyncFunc ){
