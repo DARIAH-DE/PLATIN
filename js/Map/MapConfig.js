@@ -46,27 +46,6 @@ function MapConfig(options) {
 					name: '-----------------------------------',
 				},
 				{
-					name: "Stamen WaterColor",
-					type: "Stamen",
-					mode: "watercolor",
-					attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://creativecommons.org/licenses/by-sa/3.0">CC BY SA</a>.'
-				},
-				{
-					name: "Stamen Terrain",
-					type: "Stamen",
-					mode: "terrain",
-					attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'
-				},
-				{
-					name: "Stamen Toner",
-					type: "Stamen",
-					mode: "toner",
-					attribution: 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, under <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a>. Data by <a href="http://openstreetmap.org">OpenStreetMap</a>, under <a href="http://www.openstreetmap.org/copyright">ODbL</a>.'
-				},
-				{
-					name: '-----------------------------------',
-				},
-				{
 					name: 'Contemporary map of 2014',
 					url: gsurl + '/eurostat/wms',
 					layer: 'eurostat:CNTR_RG_03M_2014',
@@ -273,7 +252,7 @@ function MapConfig(options) {
 		bingApiKey : 'none', // bing maps api key, see informations at http://bingmapsportal.com/
 		osmMaps : true, // enable/disable OSM maps
 		osmMapsMapQuest : false, // enable/disable OSM maps with MapQuest tiles
-		baseLayer : 'terrain', // initial layer to show (e.g. 'Google Streets')
+		baseLayer : 'OpenStreetMap', // initial layer to show (e.g. 'Google Streets')
 		resetMap : true, // show/hide map reset button
 		countrySelect : true, // show/hide map country selection control button
 		polygonSelect : true, // show/hide map polygon selection control button
