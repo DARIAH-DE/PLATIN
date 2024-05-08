@@ -280,7 +280,7 @@ function MapConfig(options) {
 		maxLabelIncrease : 2, // maximum increase (in em) for the font size of a label
 		labelHover : false, // true, to update on label hover
 		ieHighlightLabel : "color: COLOR1; background-color: COLOR0; filter:'progid:DXImageTransform.Microsoft.Alpha(Opacity=80)';-ms-filter:'progid:DXImageTransform.Microsoft.Alpha(Opacity=80)';", // css code for a highlighted place label in IE
-		highlightLabel : "color: COLOR0; text-shadow: 0 0 0.4em black, 0 0 0.4em black, 0 0 0.4em black, 0 0 0.4em COLOR0;", // css code for a highlighted place label
+		highlightLabel : "color: black; text-shadow: 0 0 0.2em COLOR0, 0 0 0.2em COLOR0, 0 0 0.2em COLOR0, 0 0 0.2em black;", // css code for a highlighted place label
 		ieSelectedLabel : "color: COLOR1; font-weight: bold;", // css code for a selected place label in IE
 		selectedLabel : "color: COLOR1; font-weight: bold;", // css code for a selected place label
 		ieUnselectedLabel : "color: COLOR1; font-weight: normal;", // css code for an unselected place label in IE
