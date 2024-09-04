@@ -519,62 +519,111 @@ GeoTemConfig.convertCsv = function(text){
 
 	/* get real used table headers from csv file (first line) */
 	var usedHeaders = csvArray[0];
+	/* check if header (row) elements are undefined or empty -> add  to ignore headers var, if so! */
+	var ignoreHeaders = new Array();
+	var jjj = 0;
+	for (var j = usedHeaders.length - 1; j >= 0 ; j--) {
+		/* check headers for no content */
+		if (typeof usedHeaders[j] === "undefined"
+		|| typeof usedHeaders[j] !== "string"
+		|| usedHeaders[j].length == 0) {
+			/* put index of undefined headers in new array */
+			ignoreHeaders[jjj] = j;
+			jjj++;
+		}
+		/* check other lines for no content rows */
+		var rowHasContent = false;
+		for (var i = 1; i < csvArray.length; i++) {			
+			var line = csvArray[i];
+			/* check lines of every row */
+			if (typeof line[j] !== "undefined") {
+				if (typeof line[j] === "string") {
+					if (line[j].length > 0) {
+						rowHasContent = true;
+						break;
+					}
+				} else {
+					rowHasContent = true;
+					break;
+				}
+			}
+		}
+		if (rowHasContent === false) {
+			/* skip row later completely */
+			ignoreHeaders[jjj] = j;
+			jjj++;
+		}
+	}
 
+//    console.log("ignoreHeaders  -->  ", ignoreHeaders);
 //    console.log("usedHeaders  -->  ", usedHeaders);
 
-	/* loop outer array, begin with second line */
+	/* loop outer array (lines), begin with second line (no headers) */
 	for (var i = 1; i < csvArray.length; i++) {
 		var innerArray = csvArray[i];
 		var dataObject = new Object();
 		var tableContent = new Object();
 		/* exclude lines with no content */
-		var hasContent = false;
+		var lineHasContent = false;
 		for (var j = 0; j < innerArray.length; j++) {
-			if (typeof innerArray[j] !== "undefined"){
-				if (typeof innerArray[j] === "string"){
-					if (innerArray[j].length > 0)
-						hasContent = true;
+			/* skip all entries of ignored header rows */
+			if (ignoreHeaders.includes(j)) {			
+				continue;
+			}
+			/* set lineHasContent to true, if any content is available */
+			if (typeof innerArray[j] !== "undefined") {
+				if (typeof innerArray[j] === "string") {
+					if (innerArray[j].length > 0) {
+						lineHasContent = true;
+						break;
+					}
 				} else {
-					hasContent = true;
+					lineHasContent = true;
+					break;
 				}
 			}
-			if (hasContent === true)
-				break;
 		}
-		if (hasContent === false)
+		/* if no content, skip the line and go to next line */
+		if (lineHasContent === false) {
 			continue;
-	   	/* loop inner array */
+		}
+
+		/* loop inner array */
 		for (var j = 0; j < innerArray.length; j++) {
+			/* skip all entries of ignored header rows */
+			if (ignoreHeaders.includes(j)) {
+				continue;
+			}
 			/* Name */
 			if (usedHeaders[j] == expectedHeaders[0]) {
-				dataObject["name"] = ""+innerArray[j];
-				tableContent["name"] = ""+innerArray[j];
+				dataObject["name"] = "" + innerArray[j];
+				tableContent["Name"] = "" + innerArray[j];
 			}
 			/* Address */
 			else if (usedHeaders[j] == expectedHeaders[1]) {
-				dataObject["place"] = ""+innerArray[j];
-				tableContent["place"] = ""+innerArray[j];
+				dataObject["place"] = "" + innerArray[j];
+				tableContent["Place"] = "" + innerArray[j];
 			}
 			/* Description */
 			else if (usedHeaders[j] == expectedHeaders[2]) {
-				dataObject["description"] = ""+innerArray[j];
-				tableContent["description"] = ""+innerArray[j];
+				dataObject["description"] = "" + innerArray[j];
+				tableContent["Description"] = "" + innerArray[j];
 			}
 			/* TimeStamp */
 			else if (usedHeaders[j] == expectedHeaders[5]) {
-				dataObject["time"] = ""+innerArray[j];
+				dataObject["time"] = "" + innerArray[j];
 			}
 			/* TimeSpan:begin */
 			else if (usedHeaders[j] == expectedHeaders[6]) {
-				tableContent["TimeSpan:begin"] = ""+innerArray[j];
+				tableContent["TimeSpan:begin"] = "" + innerArray[j];
 			}
 			/* TimeSpan:end */
 			else if (usedHeaders[j] == expectedHeaders[7]) {
-				tableContent["TimeSpan:end"] = ""+innerArray[j];
+				tableContent["TimeSpan:end"] = "" + innerArray[j];
 			}
 			/* weight */
 			else if (usedHeaders[j] == expectedHeaders[8]) {
-				dataObject["weight"] = ""+innerArray[j];
+				dataObject["weight"] = "" + innerArray[j];
 			}
 			/* Longitude */
 			else if (usedHeaders[j] == expectedHeaders[3]) {
@@ -588,7 +637,7 @@ GeoTemConfig.convertCsv = function(text){
 				var header = new String(usedHeaders[j]);
 				//remove leading and trailing Whitespace
 				header = $.trim(header);
-				tableContent[header] = ""+innerArray[j];
+				tableContent[header] = "" + innerArray[j];
 			}
 		}
 
@@ -596,7 +645,7 @@ GeoTemConfig.convertCsv = function(text){
 		json.push(dataObject);
 	}
 
-//    console.log("json  -->  ", json);
+//  console.log("json  -->  ", json);
 
     // TODO We should devide three cases here for not displaying the data: (i) proxy could not load file, (ii) file is empty or invalid and non-interpretable Geo-Browser CSV data, and (iii) file is a Geo-Browser CSV file (at least some of the expectedHeaders existing) and no content!!
 
