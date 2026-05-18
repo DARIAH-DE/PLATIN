@@ -26,6 +26,8 @@
 			"/localhost/",
 	);
 
+	console.log("valid hosts array: " + $validHosts);
+
 	if (isset($_REQUEST['address'])){
 
 		$parsedAddress = parse_url($_REQUEST['address']);

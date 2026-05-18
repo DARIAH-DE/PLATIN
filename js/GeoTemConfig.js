@@ -734,13 +734,21 @@ GeoTemConfig.getKmz = function(url,asyncFunc) {
  */
 GeoTemConfig.getCsv = function(url, asyncFunc) {
 
+	console.log("url: " + url);
+	console.log("dariahOwnStorageURL: " + dariahOwnStorageURL);
+
     // For DARIAH-DE OwnStorage do load data directly...
     if (url.includes(GeoTemConfig.dariahOwnStorageURL)) {
+
+		console.log("Handling NOPROXY request!");
+
         GeoTemConfig.loadJSONFromDariahStorage(url, asyncFunc);
     }
 
     // ...handle proxy requests otherwise.
     else {
+
+		console.log("Handling PROXY request!");
 
         // Check proxy setting and add proxy URL.
         if (typeof GeoTemConfig.proxy != 'undefined') {
@@ -1523,7 +1531,7 @@ GeoTemConfig.renameColumns = function(dataset, renames){
 }
 
 /**
- * Load file from DARIAH-DE OwnStorage, convert toi JSON immediately.
+ * Load file from DARIAH-DE OwnStorage, convert to JSON immediately.
  */
 GeoTemConfig.loadJSONFromDariahStorage = function(url, asyncFunc) {
     // Assemble bearer token and logID.
