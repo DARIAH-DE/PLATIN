@@ -39,7 +39,10 @@ $.fn.cleanWhitespace = function() {
 var dariahOwnStorageURL = 'https://cdstar.de.dariah.eu/dariah/';
 var datasheetEditorURL = '/edit/index.html';
 var currentURL = window.location.href;
-if (currentURL.includes("beta") || currentURL.includes("localhost")){
+// when to use dariah test storage!
+if (currentURL.includes("beta") ||
+    currentURL.includes("localhost") ||
+    currentURL.includes("d.sub")) {
 	dariahOwnStorageURL = 'https://cdstar.de.dariah.eu/test/dariah/';
 	if (currentURL.includes("beta")) datasheetEditorURL = '/beta/edit/index.html';
 }
