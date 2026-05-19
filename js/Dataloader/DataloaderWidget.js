@@ -44,7 +44,6 @@ DataloaderWidget = function(core, div, options) {
 DataloaderWidget.prototype = {
 
 	initWidget : function() {
-
 		var dataloaderWidget = this;
 	},
 
@@ -275,6 +274,11 @@ DataloaderWidget.prototype = {
 		var parametersArray = [];
 		// Encoding the param part (fixes #98 - https://gitlab.gwdg.de/dariah-de/geo-browser/-/issues/98).
 		$.each(parametersHash,function(paramName, paramValue){
+
+			// TODO Remove debug logging!
+			console.log("  ##  param name: " + paramName);
+			console.log("  ##  param value: " + paramValue);
+
 			var newParamValue = paramValue;
 			// Split for first and param part (if existing).
 			if (paramValue.lastIndexOf("?") != -1) {
@@ -286,7 +290,7 @@ DataloaderWidget.prototype = {
 			}
 
 			// TODO Remove debug logging!
-			console.log("(ENCODED) PARAM: " + newParamValue);
+			console.log("  ##  (ENCODED) PARAM: " + newParamValue);
 
 			// Add encoded param value to dataset URL to get.
 			parametersArray.push({paramName:paramName, paramValue:newParamValue});
@@ -326,14 +330,14 @@ DataloaderWidget.prototype = {
 			var origURL = paramValue;
 			if (paramName.toLowerCase().startsWith("kml")){
 				// Add proxy to KML data URL.
-        // TODO Use direct download for KML files, too!
-        if (typeof GeoTemConfig.proxy != 'undefined') {
-				  // Add  encoded params here, too! (again fixes #98).
+                // TODO Use direct download for KML files, too!
+                if (typeof GeoTemConfig.proxy != 'undefined') {
+				    // Add  encoded params here, too! (again fixes #98).
 					paramValue = GeoTemConfig.proxy + encodeURIComponent(paramValue);
-        }
+                }
 
 				// TODO Remove debug logging!
-				console.log("(PROXY) PARAM: " + paramValue);
+				console.log("  ##  (PROXY) PARAM: " + paramValue);
 
 				GeoTemConfig.getKml(paramValue, function(kmlDoc){
 					var dataSet = new Dataset(GeoTemConfig.loadKml(kmlDoc), fileName, origURL, "kml");
