@@ -734,14 +734,14 @@ GeoTemConfig.getKmz = function(url,asyncFunc) {
  */
 GeoTemConfig.getCsv = function(url, asyncFunc) {
 
-	console.log("url: " + url);
-	console.log("dariahOwnStorageURL: " + dariahOwnStorageURL);
+    // console.log("  ##  url: " + url);
+    // console.log("  ##  dariahOwnStorageURL: " + dariahOwnStorageURL);
 
     // For DARIAH-DE OwnStorage do load data directly...
     if (url.includes(GeoTemConfig.dariahOwnStorageURL)) {
 
-		// Rempove DEBUG logging!!
-		console.log("Handling NOPROXY request!");
+		// Remove DEBUG logging!!
+        // console.log("  ##  Handling NOPROXY request!");
 
         GeoTemConfig.loadJSONFromDariahStorage(url, asyncFunc);
     }
@@ -749,8 +749,8 @@ GeoTemConfig.getCsv = function(url, asyncFunc) {
     // ...handle proxy requests otherwise.
     else {
 
-		// Rempove DEBUG logging!!
-		console.log("Handling PROXY request!");
+		// Remove DEBUG logging!!
+        // console.log("  ##  Handling PROXY request!");
 
         // Check proxy setting and add proxy URL.
         if (typeof GeoTemConfig.proxy != 'undefined') {
