@@ -135,8 +135,14 @@ StorytellingWidget.prototype = {
 						// uploadToDARIAH.href = "upload" //no actual URL since URL does not exist yet
 						var localDatasetIndex = new Number(datasetIndex);
 						$(uploadToDARIAH).click(function () {
-							// TODO Add error hancling in case of non-working kml2csv conversion!
-							var csv = GeoTemConfig.createCSVfromDataset(localDatasetIndex);
+							try {
+								var csv = GeoTemConfig.createCSVfromDataset(localDatasetIndex);
+							} catch (error) {
+								var title = 'Error converting dataset: ' + error + '!';
+					            var message = 'The dataset could not be converted from KML to CSV! We apologize for the inconvenience!';
+								alert(title + "\n\n" + message);
+								return;
+							}
 							GeoTemConfig.storeToDariahStorage(csv, function (location, id) {
 								// Add URL to dataset.
 								storytellingWidget.datasets[localDatasetIndex].url = location;
