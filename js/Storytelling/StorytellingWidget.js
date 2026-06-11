@@ -130,10 +130,19 @@ StorytellingWidget.prototype = {
 						var uploadToDARIAH = document.createElement('a');
 						$(uploadToDARIAH).append(" [upload to DARIAH-DE Storage]");
 						uploadToDARIAH.title = "Only CSV documents can be uploaded to the DARIAH-DE Storage, so you can edit them using the Datasheet Editor. If the dataset is not already in CSV format, it will be converted automatically and then be uploaded. The filename of your uploaded file will be lost and you have to login first! We apologise for the inconvenience!";
-						uploadToDARIAH.href = "upload" //no actual URL since URL does not exist yet
+						// Skip setting link, because discarding link click event seems not to work,
+						// see https://gitlab.gwdg.de/dariah-de/geo-browser/-/merge_requests/40.
+						// uploadToDARIAH.href = "upload" //no actual URL since URL does not exist yet
 						var localDatasetIndex = new Number(datasetIndex);
 						$(uploadToDARIAH).click(function () {
-							var csv = GeoTemConfig.createCSVfromDataset(localDatasetIndex);
+							try {
+								var csv = GeoTemConfig.createCSVfromDataset(localDatasetIndex);
+							} catch (error) {
+								var title = 'Error converting dataset: ' + error + '!';
+					            var message = 'The dataset could not be converted from KML to CSV! We apologize for the inconvenience!';
+								alert(title + "\n\n" + message);
+								return;
+							}
 							GeoTemConfig.storeToDariahStorage(csv, function (location, id) {
 								// Add URL to dataset.
 								storytellingWidget.datasets[localDatasetIndex].url = location;
