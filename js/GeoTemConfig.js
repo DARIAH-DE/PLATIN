@@ -1319,7 +1319,14 @@ GeoTemConfig.createCSVfromDataset = function(index){
 			} else {
 				csvContent += ",";
 			}
-			csvContent += "\""+elem[val]+"\"";
+			// Replace all "s in strings with "“"s! " is our CSV text delimeter!
+			console.log("Replacing all \"s with “s due to CSV text delimeter usage in all strings!");
+			if (typeof elem[val] === 'string' || elem[val] instanceof String) {
+				csvContent += "\"" + elem[val].replaceAll("\"", "“") +"\"";
+			}
+			else {
+				csvContent += "\""+elem[val]+"\"";
+			}
 		});
 		$(tableContent).each(function(key,val){
 			if (isFirst){
