@@ -740,7 +740,6 @@ GeoTemConfig.getCsv = function(url, asyncFunc) {
     // For DARIAH-DE OwnStorage do load data directly...
     if (url.includes(GeoTemConfig.dariahOwnStorageURL)) {
 
-		// Remove DEBUG logging!!
         // console.log("  ##  Handling NOPROXY request!");
 
         GeoTemConfig.loadJSONFromDariahStorage(url, asyncFunc);
@@ -749,7 +748,6 @@ GeoTemConfig.getCsv = function(url, asyncFunc) {
     // ...handle proxy requests otherwise.
     else {
 
-		// Remove DEBUG logging!!
         // console.log("  ##  Handling PROXY request!");
 
         // Check proxy setting and add proxy URL.

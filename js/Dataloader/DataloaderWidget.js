@@ -275,7 +275,6 @@ DataloaderWidget.prototype = {
 		// Encoding the param part (fixes #98 - https://gitlab.gwdg.de/dariah-de/geo-browser/-/issues/98).
 		$.each(parametersHash,function(paramName, paramValue){
 
-			// TODO Remove debug logging!
 			// console.log("  ##  param name: " + paramName);
 			// console.log("  ##  param value: " + paramValue);
 
@@ -289,7 +288,6 @@ DataloaderWidget.prototype = {
 			  var newParamValue = first + "?" + encodedParam;
 			}
 
-			// TODO Remove debug logging!
 			// console.log("  ##  (ENCODED) PARAM: " + newParamValue);
 
 			// Add encoded param value to dataset URL to get.
@@ -336,7 +334,6 @@ DataloaderWidget.prototype = {
 					paramValue = GeoTemConfig.proxy + encodeURIComponent(paramValue);
                 }
 
-				// TODO Remove debug logging!
 				// console.log("  ##  (PROXY) PARAM: " + paramValue);
 
 				GeoTemConfig.getKml(paramValue, function(kmlDoc){
