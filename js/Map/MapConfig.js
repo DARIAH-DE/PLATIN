@@ -29,12 +29,12 @@
  */
 function MapConfig(options) {
 
-//	var gsurl = 'https://ref.de.dariah.eu/geoserver';
+//	var gsurl = 'https://geoserver.de.dariah.eu/geoserver';
 	var gsurl = 'https://geoserver.dariahde.d.sub.uni-goettingen.de/geoserver';
 
-    var euroGraphicsAttribution = "© <a href='https://ec.europa.eu/eurostat/web/gisco/geodata/reference-data/administrative-units-statistical-units'>EuroGeographics</a> for the administrative boundaries";
+    var euroGraphicsAttribution = "© <a href='https://ec.europa.eu/eurostat/web/gisco/geodata/administrative-units'>EuroGeographics</a> for the administrative boundaries";
     var mapsForFreeAttribution = "© <a href='https://www.maps-for-free.com'>Maps for Free</a>, released under <a href='https://creativecommons.org/publicdomain/zero/1.0/'>Creative Commons CC0</a>";
-    var dareAttribution = "© <a href='https://twitter.com/johanahlfeldt'>Johan Åhlfeldt</a>, Digital Atlas of the Roman Empire (<a href='https://dh.gu.se/dare/'>DARE</a>)";
+    var dareAttribution = "© <a href='https://twitter.com/johanahlfeldt'>Johan Åhlfeldt</a>, Digital Atlas of the Roman Empire (<a href='https://imperium.ahlfeldt.se'>DARE</a>)";
     var thinkQuestAttribution = "© ThinkQuest <a href='https://web.archive.org/web/20091012051813/http://library.thinkquest.org/C006628'>Team C006628</a>";
 
 	this.options = {
