@@ -39,7 +39,10 @@ $.fn.cleanWhitespace = function() {
 var dariahOwnStorageURL = 'https://cdstar.de.dariah.eu/dariah/';
 var datasheetEditorURL = '/edit/index.html';
 var currentURL = window.location.href;
-if (currentURL.includes("beta") || currentURL.includes("localhost")){
+// when to use dariah test storage!
+if (currentURL.includes("beta") ||
+    currentURL.includes("localhost") ||
+    currentURL.includes("d.sub")) {
 	dariahOwnStorageURL = 'https://cdstar.de.dariah.eu/test/dariah/';
 	if (currentURL.includes("beta")) datasheetEditorURL = '/beta/edit/index.html';
 }
@@ -731,13 +734,21 @@ GeoTemConfig.getKmz = function(url,asyncFunc) {
  */
 GeoTemConfig.getCsv = function(url, asyncFunc) {
 
+    // console.log("  ##  url: " + url);
+    // console.log("  ##  dariahOwnStorageURL: " + dariahOwnStorageURL);
+
     // For DARIAH-DE OwnStorage do load data directly...
     if (url.includes(GeoTemConfig.dariahOwnStorageURL)) {
+
+        // console.log("  ##  Handling NOPROXY request!");
+
         GeoTemConfig.loadJSONFromDariahStorage(url, asyncFunc);
     }
 
     // ...handle proxy requests otherwise.
     else {
+
+        // console.log("  ##  Handling PROXY request!");
 
         // Check proxy setting and add proxy URL.
         if (typeof GeoTemConfig.proxy != 'undefined') {
@@ -1527,7 +1538,7 @@ GeoTemConfig.renameColumns = function(dataset, renames){
 }
 
 /**
- * Load file from DARIAH-DE OwnStorage, convert toi JSON immediately.
+ * Load file from DARIAH-DE OwnStorage, convert to JSON immediately.
  */
 GeoTemConfig.loadJSONFromDariahStorage = function(url, asyncFunc) {
     // Assemble bearer token and logID.
