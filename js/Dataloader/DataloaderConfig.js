@@ -26,8 +26,7 @@
  */
 function DataloaderConfig(options) {
 
-//	var dl = 'https://geobrowser.de.dariah.eu/';
-	var dl = 'https://geobrowser.dariahde.d.sub.uni-goettingen.de/';
+	var dl = 'https://geobrowser.de.dariah.eu/';
 
 	this.options = {
 		staticKML : [

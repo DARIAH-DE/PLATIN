@@ -29,8 +29,7 @@
  */
 function MapConfig(options) {
 
-//	var gsurl = 'https://geoserver.de.dariah.eu/geoserver';
-	var gsurl = 'https://geoserver.dariahde.d.sub.uni-goettingen.de/geoserver';
+	var gsurl = 'https://geoserver.de.dariah.eu/geoserver';
 
     var euroGraphicsAttribution = "© <a href='https://ec.europa.eu/eurostat/web/gisco/geodata/administrative-units'>EuroGeographics</a> for the administrative boundaries";
     var mapsForFreeAttribution = "© <a href='https://www.maps-for-free.com'>Maps for Free</a>, released under <a href='https://creativecommons.org/publicdomain/zero/1.0/'>Creative Commons CC0</a>";
