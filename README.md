@@ -1,5 +1,6 @@
 # PLATIN
-Place and Time Navigator 
+
+Place and Time Navigator
 
 a fork and extension of [GeoTemCo](https://github.com/stjaenicke/GeoTemCo)
 
@@ -9,7 +10,7 @@ developed at the [Max-Planck-Institute for the History of Science](http://www.mp
 
 PLATIN is a HTML5-based tool for presentation and analysis of spatial and temporal data, with a focus on historical data.
 
-The projects starting goal was to bring the functionality of the first [DARIAH-DE](https://de.dariah.eu) Geo-Browser, an installation of the [e4d](http://www.informatik.uni-leipzig.de:8080/e4D/), to [GeoTemCo](http://www.informatik.uni-leipzig.de/geotemco/). 
+The projects starting goal was to bring the functionality of the first [DARIAH-DE](https://de.dariah.eu) Geo-Browser, an installation of the [e4d](http://www.informatik.uni-leipzig.de:8080/e4D/), to [GeoTemCo](http://www.informatik.uni-leipzig.de/geotemco/).
 
 This fork just configures PLATIN to be used in the DARIAH-DE [Geo-Browser](https://geobrowser.de.dariah.eu). Changes are:
 
@@ -18,6 +19,7 @@ This fork just configures PLATIN to be used in the DARIAH-DE [Geo-Browser](https
 * minor cosmetical adaptations
 
 Which added the following functionality:
+
 * CSV/XLS/XLSX loading
 * loading of URL-specified datasets
 * deletion of datasets and refining of datasets
@@ -77,6 +79,7 @@ Color and shape (on map) of the datasets can be changed on-the-fly from a dropdo
 (This feature is unstable and under heavy development.)
 
 As this tool also has an focus on data-analysis, it can be interesting to
+
 * record the steps of selection/piechart creation/dataset refining
 * go back a step or more in this history of data transformation
 * branch this history
