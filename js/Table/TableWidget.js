@@ -111,30 +111,29 @@ TableWidget.prototype = {
 				var exportTabDiv = document.createElement('div');
 				exportTabDiv.setAttribute('class', 'smallButton exportDataset');
 				exportTabDiv.title = GeoTemConfig.getString('exportDatasetHelp');
-				var exportTabForm = document.createElement('form');
-				//TODO: make this configurable
-				exportTabForm.action = 'php/download.php';
-				exportTabForm.method = 'post';
-				var exportTabHiddenValue = document.createElement('input');
-				exportTabHiddenValue.name = 'file';
-				exportTabHiddenValue.type = 'hidden';
-				exportTabForm.appendChild(exportTabHiddenValue);
-                // Add filename for exported KML file, use dataset table name.
-                var filenameHiddenValue = document.createElement('input');
-                filenameHiddenValue.name = "filename";
-                // Do replace any special chars, allow "-"!
-                filenameHiddenValue.value = name.replaceAll(/[^\w|^-]/g, '_');
-                filenameHiddenValue.type = 'hidden';
-                exportTabForm.appendChild(filenameHiddenValue);
+                // Build the download in the browser. This avoids posting the
+                // complete dataset to php/download.php.
+                var exportFilename = name.replaceAll(/[^\w|^-]/g, '_');
+                if (exportFilename.length === 0) {
+                    exportFilename = 'export';
+                }
 				exportTabDiv.onclick = $.proxy(function(e) {
-					$(exportTabHiddenValue).val(GeoTemConfig.createKMLfromDataset(index));
-					$(exportTabForm).submit();
+					var kml = GeoTemConfig.createKMLfromDataset(index);
+					var blob = new Blob([kml], {type: 'application/vnd.google-earth.kml+xml'});
+					var blobURL = window.URL.createObjectURL(blob);
+					var downloadLink = document.createElement('a');
+					downloadLink.href = blobURL;
+					downloadLink.download = exportFilename + '.kml';
+					downloadLink.style.display = 'none';
+					document.body.appendChild(downloadLink);
+					downloadLink.click();
+					document.body.removeChild(downloadLink);
+					window.URL.revokeObjectURL(blobURL);
 					//don't let the event propagate to the DIV
 					e.stopPropagation();
 					//discard link click
 					return(false);
 				},{index:index});
-				exportTabDiv.appendChild(exportTabForm);
 				$(tableTabTableRow).append($(document.createElement('td')).append(exportTabDiv));
 			}
 
