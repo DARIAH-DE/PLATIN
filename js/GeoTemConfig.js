@@ -726,6 +726,23 @@ GeoTemConfig.getKmz = function(url,asyncFunc) {
 };
 
 /**
+ * Adds the configured proxy to a URL. The complete target URL is encoded so
+ * that proxy.php receives it as a single "address" parameter.
+ */
+GeoTemConfig.proxifyUrl = function(url) {
+    if (typeof url !== 'string') {
+        return url;
+    }
+    if (typeof GeoTemConfig.proxy === 'undefined' || GeoTemConfig.proxy === null) {
+        return url;
+    }
+    if (url.indexOf(GeoTemConfig.proxy) === 0) {
+        return url;
+    }
+    return GeoTemConfig.proxy + encodeURIComponent(url);
+};
+
+/**
  * Loads the CSV file from the given URL and converts it to KML.
  *
  * @param {String} url The url of the file to load.
@@ -751,9 +768,7 @@ GeoTemConfig.getCsv = function(url, asyncFunc) {
         // console.log("  ##  Handling PROXY request!");
 
         // Check proxy setting and add proxy URL.
-        if (typeof GeoTemConfig.proxy != 'undefined') {
-            url = GeoTemConfig.proxy + url;
-        }
+        url = GeoTemConfig.proxifyUrl(url);
 
         var async = false;
         if(asyncFunc) {

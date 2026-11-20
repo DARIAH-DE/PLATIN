@@ -329,10 +329,7 @@ DataloaderWidget.prototype = {
 			if (paramName.toLowerCase().startsWith("kml")){
 				// Add proxy to KML data URL.
                 // TODO Use direct download for KML files, too!
-                if (typeof GeoTemConfig.proxy != 'undefined') {
-				    // Add  encoded params here, too! (again fixes #98).
-					paramValue = GeoTemConfig.proxy + encodeURIComponent(paramValue);
-                }
+                paramValue = GeoTemConfig.proxifyUrl(paramValue);
 
 				// console.log("  ##  (PROXY) PARAM: " + paramValue);
 
