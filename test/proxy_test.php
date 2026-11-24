@@ -74,6 +74,10 @@ checkValue('maps unknown media type to octet-stream', geoBrowserProxySafeContent
 checkValue('blocks html', geoBrowserProxySafeContentType('text/html'), null);
 checkValue('blocks svg', geoBrowserProxySafeContentType('image/svg+xml'), null);
 
+checkValue('requires the cURL extension', extension_loaded('curl'), true);
+checkValue('removes the stream fallback', function_exists('geoBrowserProxyFetchStream'), false);
+checkValue('removes the fetch dispatcher', function_exists('geoBrowserProxyFetch'), false);
+
 if (count($failures) > 0) {
 	fwrite(STDERR, "FAILED\n" . implode("\n", $failures) . "\n");
 	exit(1);

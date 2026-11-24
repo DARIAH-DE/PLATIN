@@ -4,6 +4,12 @@
 *
 * Hardened HTTP proxy used by proxy.php.
 *
+* The proxy accepts one target URL in the "address" query parameter, checks
+* it against the deployment allowlist, resolves it, rejects non-public
+* addresses, and fetches it with cURL. cURL is required: the former stream
+* wrapper fallback was removed because it could not pin the checked DNS
+* address and therefore left a DNS-rebinding window.
+*
 * This file is part of PLATIN and is distributed under the same terms as
 * proxy.php.
 */
@@ -20,8 +26,23 @@ if (!defined('GEOBROWSER_PROXY_MAX_POST_BYTES')) {
 	define('GEOBROWSER_PROXY_MAX_POST_BYTES', 2 * 1024 * 1024);
 }
 
+/**
+ * Validate and execute one proxy request.
+ *
+ * The flow is: method and cURL checks, address parsing, scheme/host/port
+ * allowlisting, DNS resolution with public-IP validation, POST-body
+ * validation, cURL fetch with DNS pinning, and safe response headers.
+ *
+ * @param array $validHosts Allowlist patterns supplied by proxy.php.
+ * @return void
+ */
 function geoBrowserProxyRun($validHosts)
 {
+	if (!function_exists('curl_init') || !function_exists('curl_exec')) {
+		geoBrowserProxyError(503, 'Proxy requires the PHP cURL extension');
+		return;
+	}
+
 	$method = isset($_SERVER['REQUEST_METHOD']) ? strtoupper($_SERVER['REQUEST_METHOD']) : '';
 	if (!in_array($method, array('GET', 'POST'), true)) {
 		geoBrowserProxyError(405, 'Method Not Allowed', array('Allow: GET, POST'));
@@ -122,7 +143,7 @@ function geoBrowserProxyRun($validHosts)
 		}
 	}
 
-	$response = geoBrowserProxyFetch($targetUrl, $method, $postBody, $hostForMatch, $port, $ips);
+	$response = geoBrowserProxyFetchCurl($targetUrl, $method, $postBody, $hostForMatch, $port, $ips);
 	if ($response === null) {
 		geoBrowserProxyError(502, 'Upstream request failed');
 		return;
@@ -131,6 +152,15 @@ function geoBrowserProxyRun($validHosts)
 	geoBrowserProxySendResponse($response);
 }
 
+/**
+ * Check a hostname against normalized allowlist patterns.
+ * Invalid or unanchored patterns are skipped, so an empty or misconfigured
+ * list denies every request.
+ *
+ * @param string $host Hostname to check, without IPv6 brackets.
+ * @param array $validHosts Allowlist patterns from proxy.php.
+ * @return bool True only if at least one valid pattern matches.
+ */
 function geoBrowserProxyHostAllowed($host, $validHosts)
 {
 	if (!is_array($validHosts)) {
@@ -148,6 +178,15 @@ function geoBrowserProxyHostAllowed($host, $validHosts)
 	return false;
 }
 
+/**
+ * Normalize and validate one allowlist pattern.
+ * Delimited patterns are accepted if valid. Bare values are wrapped as
+ * /.../i for compatibility; the result must be anchored at both ends, and
+ * invalid or unanchored values are rejected so they fail closed.
+ *
+ * @param mixed $pattern Candidate allowlist pattern.
+ * @return string|null Normalized PCRE pattern, or null if unusable.
+ */
 function geoBrowserProxyNormalizePattern($pattern)
 {
 	if (!is_string($pattern)) {
@@ -178,6 +217,15 @@ function geoBrowserProxyNormalizePattern($pattern)
 	return $pattern;
 }
 
+/**
+ * Rebuild the upstream URL from parsed address parts.
+ * The original query string is preserved. Extra query parameters from the
+ * proxy request (except "address") are appended with RFC 3986 encoding;
+ * array values are rejected because they cannot be represented safely.
+ *
+ * @param array $parts Result of parse_url() for the address parameter.
+ * @return string|null Target URL, or null for invalid/array parameters.
+ */
 function geoBrowserProxyBuildTargetUrl($parts)
 {
 	$scheme = strtolower($parts['scheme']);
@@ -208,6 +256,15 @@ function geoBrowserProxyBuildTargetUrl($parts)
 	return $url;
 }
 
+/**
+ * Resolve a hostname to unique IPv4/IPv6 addresses.
+ * IP literals are returned directly. DNS A/AAAA records are preferred;
+ * gethostbynamel() is an IPv4 fallback. IPv4 addresses are sorted first so
+ * the cURL resolver pin uses a predictable family when both exist.
+ *
+ * @param string $host Hostname or IP literal.
+ * @return array Unique IP address strings.
+ */
 function geoBrowserProxyResolveHost($host)
 {
 	if (filter_var($host, FILTER_VALIDATE_IP) !== false) {
@@ -246,6 +303,16 @@ function geoBrowserProxyResolveHost($host)
 	return $ips;
 }
 
+/**
+ * Check whether an IP address is outside blocked non-public ranges.
+ * This is a denylist, not a complete IANA special-purpose registry: it
+ * rejects private, loopback, link-local, CGNAT, multicast, and reserved
+ * IPv4 ranges plus loopback/unspecified/ULA/link-local IPv6 addresses.
+ * IPv4-mapped IPv6 addresses are recursively checked as IPv4.
+ *
+ * @param mixed $ip Candidate IP address.
+ * @return bool True if the address is not in a blocked range.
+ */
 function geoBrowserProxyIsPublicIp($ip)
 {
 	if (!is_string($ip) || filter_var($ip, FILTER_VALIDATE_IP) === false) {
@@ -281,6 +348,13 @@ function geoBrowserProxyIsPublicIp($ip)
 	return true;
 }
 
+/**
+ * Extract and normalize the media type from a Content-Type header.
+ * Parameters such as charset are discarded and the result is lowercased.
+ *
+ * @param mixed $value Raw Content-Type value.
+ * @return string Normalized media type, or an empty string.
+ */
 function geoBrowserProxyMediaType($value)
 {
 	if (!is_string($value)) {
@@ -290,14 +364,20 @@ function geoBrowserProxyMediaType($value)
 	return strtolower(trim($parts[0]));
 }
 
-function geoBrowserProxyFetch($url, $method, $body, $host, $port, $ips)
-{
-	if (function_exists('curl_init')) {
-		return geoBrowserProxyFetchCurl($url, $method, $body, $host, $port, $ips);
-	}
-	return geoBrowserProxyFetchStream($url, $method, $body);
-}
-
+/**
+ * Fetch an upstream URL with cURL using the validated DNS address.
+ * The resolved address is pinned through CURLOPT_RESOLVE so cURL cannot be
+ * redirected by a second DNS lookup. Redirects are disabled, protocols are
+ * limited to HTTP(S), TLS is verified, and the response body is capped.
+ *
+ * @param string $url Validated upstream URL.
+ * @param string $method GET or POST.
+ * @param string $body Request body for POST.
+ * @param string $host Hostname used for TLS/SNI and the Host header.
+ * @param int $port Upstream port (80 or 443).
+ * @param array $ips Resolved IPs; the first address is pinned.
+ * @return array|null Response array with body/content_type, or null on failure.
+ */
 function geoBrowserProxyFetchCurl($url, $method, $body, $host, $port, $ips)
 {
 	$ip = $ips[0];
@@ -358,59 +438,15 @@ function geoBrowserProxyFetchCurl($url, $method, $body, $host, $port, $ips)
 	return array('body' => $responseBody, 'content_type' => $contentType);
 }
 
-function geoBrowserProxyFetchStream($url, $method, $body)
-{
-	$headers = "Accept: */*\r\nConnection: close\r\n";
-	if ($method === 'POST') {
-		$headers .= 'Content-Type: ' . $_SERVER['CONTENT_TYPE'] . "\r\n";
-		$headers .= 'Content-Length: ' . strlen($body) . "\r\n";
-	}
-	$options = array(
-		'http' => array(
-			'method' => $method,
-			'header' => $headers,
-			'content' => $method === 'POST' ? $body : '',
-			'follow_location' => 0,
-			'max_redirects' => 0,
-			'timeout' => 15,
-			'ignore_errors' => true,
-			'protocol_version' => 1.1,
-		),
-		'ssl' => array(
-			'verify_peer' => true,
-			'verify_peer_name' => true,
-		),
-	);
-	$context = stream_context_create($options);
-	$responseBody = @file_get_contents($url, false, $context, 0, GEOBROWSER_PROXY_MAX_RESPONSE_BYTES + 1);
-	if (!is_string($responseBody) || strlen($responseBody) > GEOBROWSER_PROXY_MAX_RESPONSE_BYTES) {
-		return null;
-	}
-
-	$status = 0;
-	$contentType = '';
-	$responseHeaders = function_exists('http_get_last_response_headers')
-		? http_get_last_response_headers()
-		: null;
-	if (!is_array($responseHeaders)) {
-		$responseHeaderName = 'http_response_header';
-		$responseHeaders = isset($$responseHeaderName) ? $$responseHeaderName : array();
-	}
-	if (is_array($responseHeaders)) {
-		foreach ($responseHeaders as $line) {
-			if (preg_match('#^HTTP/\S+\s+(\d{3})#', $line, $matches) === 1) {
-				$status = (int) $matches[1];
-			} elseif (stripos($line, 'Content-Type:') === 0) {
-				$contentType = trim(substr($line, strlen('Content-Type:')));
-			}
-		}
-	}
-	if ($status < 200 || $status >= 300) {
-		return null;
-	}
-	return array('body' => $responseBody, 'content_type' => $contentType);
-}
-
+/**
+ * Send the upstream response with a safe content type and security headers.
+ * HTML/XHTML/SVG responses are rejected. Binary download types are sent as
+ * attachments; other allowed types are rendered inline with nosniff and a
+ * restrictive CSP.
+ *
+ * @param array $response Response array from the cURL fetch.
+ * @return void
+ */
 function geoBrowserProxySendResponse($response)
 {
 	$contentType = geoBrowserProxySafeContentType($response['content_type']);
@@ -438,6 +474,14 @@ function geoBrowserProxySendResponse($response)
 	echo $body;
 }
 
+/**
+ * Map an upstream Content-Type to a safely handled proxy content type.
+ * Known safe types are preserved, empty or unknown types become
+ * application/octet-stream, and active HTML/XHTML/SVG types return null.
+ *
+ * @param mixed $value Upstream Content-Type header.
+ * @return string|null Safe media type, or null for blocked active content.
+ */
 function geoBrowserProxySafeContentType($value)
 {
 	$mediaType = geoBrowserProxyMediaType($value);
@@ -474,6 +518,16 @@ function geoBrowserProxySafeContentType($value)
 	return 'application/octet-stream';
 }
 
+/**
+ * Emit a plain-text proxy error response.
+ * The caller must pass a fixed message and must not include user input,
+ * because the message is written directly to the response body.
+ *
+ * @param int $status HTTP status code.
+ * @param string $message Safe error message.
+ * @param array $headers Additional response headers.
+ * @return void
+ */
 function geoBrowserProxyError($status, $message, $headers = array())
 {
 	http_response_code($status);
