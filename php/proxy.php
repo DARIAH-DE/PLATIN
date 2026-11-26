@@ -20,13 +20,15 @@
 * MA 02110-1301  USA
 */
 
-// Hosts that are allowed to download from in RegEx form. (e.g. "/.*dropbox\.com/")
+// Hosts that are allowed to download from in RegEx form
+// (e.g. "/^([a-z0-9-]+\\.)*dropbox\.com\z/i").
 // An empty array denies every request. Do not enable localhost in production.
 // Patterns must be anchored (^...$ or ^...\z). Bare patterns are accepted
 // for compatibility and wrapped automatically.
 	$validHosts = array(
 //		"/localhost/",
-		"/^([a-z0-9-]+\.)*dariah\.eu$/i",
+		"/^geoserver\.de\.dariah\.eu\z/i",
+		"/^([a-z0-9-]+\.)*steinheim-institut\.de\z/i",
 	);
 
 	if (!defined('GEOBROWSER_PROXY_LIBRARY')) {

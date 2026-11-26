@@ -726,20 +726,54 @@ GeoTemConfig.getKmz = function(url,asyncFunc) {
 };
 
 /**
- * Adds the configured proxy to a URL. The complete target URL is encoded so
- * that proxy.php receives it as a single "address" parameter.
+ * Adds the configured proxy to an external URL. Relative,
+ * same-origin, and DARIAH-DE OwnStorage URLs are loaded
+ * directly.
  */
 GeoTemConfig.proxifyUrl = function(url) {
     if (typeof url !== 'string') {
         return url;
     }
-    if (typeof GeoTemConfig.proxy === 'undefined' || GeoTemConfig.proxy === null) {
+    if (typeof GeoTemConfig.proxy === 'undefined' ||
+            GeoTemConfig.proxy === null) {
         return url;
     }
     if (url.indexOf(GeoTemConfig.proxy) === 0) {
         return url;
     }
-    return GeoTemConfig.proxy + encodeURIComponent(url);
+
+    var target = url.trim();
+    if (target === '') {
+        return url;
+    }
+
+    // Relative and same-origin URLs are loaded directly.
+    if (!/^[a-z][a-z0-9+.-]*:/i.test(target) &&
+            target.indexOf('//') !== 0) {
+        return url;
+    }
+    if (target.indexOf('//') === 0) {
+        target = window.location.protocol + target;
+    }
+    var origin = window.location.protocol + '//';
+    origin += window.location.host;
+    if (target === origin ||
+            target.indexOf(origin + '/') === 0) {
+        return url;
+    }
+
+    // CDstar data is fetched directly with its own CORS/auth
+    // handling.
+    if (target.indexOf(GeoTemConfig.dariahOwnStorageURL) === 0) {
+        return url;
+    }
+
+    // Blob and data URLs cannot be proxied.
+    if (/^(blob|data):/i.test(target)) {
+        return url;
+    }
+
+    return GeoTemConfig.proxy + encodeURIComponent(target);
 };
 
 /**

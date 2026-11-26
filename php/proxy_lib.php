@@ -141,6 +141,10 @@ function geoBrowserProxyRun($validHosts)
 			geoBrowserProxyError(413, 'Request body too large');
 			return;
 		}
+		if (!geoBrowserProxyIsWfsGetFeature($postBody)) {
+			geoBrowserProxyError(403, 'POST body not allowed');
+			return;
+		}
 	}
 
 	$response = geoBrowserProxyFetchCurl($targetUrl, $method, $postBody, $hostForMatch, $port, $ips);
@@ -362,6 +366,49 @@ function geoBrowserProxyMediaType($value)
 	}
 	$parts = explode(';', $value, 2);
 	return strtolower(trim($parts[0]));
+}
+
+/**
+ * Check whether a POST body is a WFS GetFeature request.
+ *
+ * Only read-only WFS GetFeature requests are forwarded. DTDs are
+ * rejected to avoid entity expansion, and the root element must be
+ * GetFeature in a supported WFS namespace.
+ *
+ * @param string $body Raw POST body.
+ * @return bool True if the body is a WFS GetFeature request.
+ */
+function geoBrowserProxyIsWfsGetFeature($body)
+{
+	if (!is_string($body) || trim($body) === '') {
+		return false;
+	}
+	if (!class_exists('DOMDocument')) {
+		return false;
+	}
+	$previous = libxml_use_internal_errors(true);
+	$document = new DOMDocument();
+	$loaded = $document->loadXML(
+		$body,
+		LIBXML_NONET | LIBXML_NOBLANKS
+	);
+	libxml_clear_errors();
+	libxml_use_internal_errors($previous);
+
+	if (!$loaded || !$document->documentElement ||
+			$document->doctype !== null) {
+		return false;
+	}
+
+	$root = $document->documentElement;
+	if (strcasecmp($root->localName, 'GetFeature') !== 0) {
+		return false;
+	}
+
+	return in_array($root->namespaceURI, array(
+		'http://www.opengis.net/wfs',
+		'http://www.opengis.net/wfs/2.0',
+	), true);
 }
 
 /**
