@@ -20,57 +20,21 @@
 * MA 02110-1301  USA
 */
 
-	//Hosts that are allowed to download from in RegEx form. (e.g. "/.*dropbox\.com/")
-	//If this array is empty, all hosts are allowed.
+// Hosts that are allowed to download from in RegEx form
+// (e.g. "/^([a-z0-9-]+\\.)*dropbox\.com\z/i").
+// An empty array denies every request. Do not enable localhost in production.
+// Patterns must be anchored (^...$ or ^...\z). Bare patterns are accepted
+// for compatibility and wrapped automatically.
 	$validHosts = array(
-			"/localhost/",
+//		"/localhost/",
+		"/^geoserver\.de\.dariah\.eu\z/i",
+		"/^([a-z0-9-]+\.)*steinheim-institut\.de\z/i",
 	);
 
-	if (isset($_REQUEST['address'])){
-
-		$parsedAddress = parse_url($_REQUEST['address']);
-
-		$found = 0;
-
-		foreach ($validHosts as $host){
-			if (preg_match($host, $parsedAddress["host"])){
-				$found = 1;
-				break;
-			}
-		}
-
-		if ((count($validHosts)==0) || ($found==1)){
-			$address = $_REQUEST['address'];
-			$isFirst = 1;
-			foreach($_REQUEST as $key => $value){
-				if ($key == 'address')
-					continue;
-				if ($isFirst == 1){
-					$isFirst = 0;
-					$address .= "?";
-				} else {
-					$address .= "&";
-				}
-				$address .= $key . "=" . $value;
-			}
-
-			$request_body = file_get_contents('php://input');
-
-			if (empty($request_body)){
-				echo file_get_contents($address);
-			} else {
-				$opts = array('http' =>
-						array(
-								'method'  => 'POST',
-								'header'  => 'Content-type: '.$_SERVER["CONTENT_TYPE"],
-								'content' => $request_body
-						)
-				);
-
-				$context = stream_context_create($opts);
-
-				echo file_get_contents($address, false, $context);
-			}
-		}
+	if (!defined('GEOBROWSER_PROXY_LIBRARY')) {
+		define('GEOBROWSER_PROXY_LIBRARY', true);
 	}
+	require_once __DIR__ . '/proxy_lib.php';
+
+	geoBrowserProxyRun($validHosts);
 ?>

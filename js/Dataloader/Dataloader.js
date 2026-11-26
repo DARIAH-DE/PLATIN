@@ -137,8 +137,7 @@ Dataloader.prototype = {
 					return;
 				var origURL = kmlURL;
 				var fileName = this.getFileName(kmlURL);
-				if (typeof GeoTemConfig.proxy != 'undefined')
-					kmlURL = GeoTemConfig.proxy + kmlURL;
+				kmlURL = GeoTemConfig.proxifyUrl(kmlURL);
 				var kml = GeoTemConfig.getKml(kmlURL);
 
 				if ((typeof kml !== "undefined") && (kml != null)) {
@@ -177,9 +176,7 @@ Dataloader.prototype = {
 	    var origURL = kmlURL;
 	    var fileName = this.getFileName(kmlURL);
 
-	    if (typeof GeoTemConfig.proxy != 'undefined') {
-		    kmlURL = GeoTemConfig.proxy + kmlURL;
-	    }
+	    kmlURL = GeoTemConfig.proxifyUrl(kmlURL);
 
 	    var kml = GeoTemConfig.getKml(kmlURL);
 	    if ((typeof kml !== "undefined") && (kml != null)) {
@@ -218,8 +215,7 @@ Dataloader.prototype = {
 				return;
 			var origURL = kmzURL;
 			var fileName = dataLoader.getFileName(kmzURL);
-			if (typeof GeoTemConfig.proxy != 'undefined')
-				kmzURL = GeoTemConfig.proxy + kmzURL;
+			kmzURL = GeoTemConfig.proxifyUrl(kmzURL);
 
 			GeoTemConfig.getKmz(kmzURL, function(kmlArray){
 		    	$(kmlArray).each(function(){

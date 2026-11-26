@@ -1,6 +1,6 @@
 <?php
 /*
-* proxy.php
+* download.php
 *
 * Copyright (c) 2013, Sebastian Kruse. All rights reserved.
 *
@@ -20,30 +20,58 @@
 * MA 02110-1301  USA
 */
 
-if (!empty($_POST['file'])) {
-
-	$file = $_POST['file'];
-    $filename = $_POST['filename'];
-	$filesize = strlen($file);
-
-	//$mime = array('application/octet-stream');
-    $mime = array('application/vnd.dariahde.geobrowser.kml+xml');
-
-	header('Content-Type: '.$mime);
-	header('Content-Disposition: attachment; filename="'.$filename.'.kml"');
-	header('Content-Transfer-Encoding: binary');
-	header('Content-Length: '.sprintf('%d', $filesize));
-	header('Expires: 0');
-
-	// check for IE only headers
-	// credits to: cballou, http://stackoverflow.com/questions/2019964/php-form-download-to-zip
-	if (isset($_SERVER['HTTP_USER_AGENT']) && (strpos($_SERVER['HTTP_USER_AGENT'], 'MSIE') !== false)) {
-	  header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-	  header('Pragma: public');
-	} else {
-	  header('Pragma: no-cache');
-	}
-
-	echo $file;
+if (!isset($_SERVER['REQUEST_METHOD']) || $_SERVER['REQUEST_METHOD'] !== 'POST') {
+	http_response_code(405);
+	header('Allow: POST');
+	header('Content-Type: text/plain; charset=utf-8');
+	echo "Method Not Allowed\n";
+	exit;
 }
+
+$file = isset($_POST['file']) ? $_POST['file'] : null;
+$filename = isset($_POST['filename']) ? $_POST['filename'] : 'export';
+
+if (!is_string($file) || $file === '') {
+	http_response_code(400);
+	header('Content-Type: text/plain; charset=utf-8');
+	echo "Missing file\n";
+	exit;
+}
+
+if (!is_string($filename)) {
+	$filename = 'export';
+}
+
+$maxFileSize = 5 * 1024 * 1024;
+if (strlen($file) > $maxFileSize) {
+	http_response_code(413);
+	header('Content-Type: text/plain; charset=utf-8');
+	echo "File too large\n";
+	exit;
+}
+
+$trimmedFile = ltrim($file, "\xEF\xBB\xBF \t\n\r");
+if (strpos($trimmedFile, '<?xml') !== 0 && strpos($trimmedFile, '<kml') !== 0) {
+	http_response_code(400);
+	header('Content-Type: text/plain; charset=utf-8');
+	echo "Invalid KML\n";
+	exit;
+}
+
+$filename = preg_replace('/[^A-Za-z0-9._-]+/', '_', $filename);
+$filename = trim($filename, '._-');
+if ($filename === '') {
+	$filename = 'export';
+}
+$filename = substr($filename, 0, 100) . '.kml';
+
+header('Content-Type: application/vnd.google-earth.kml+xml; charset=utf-8');
+header('Content-Disposition: attachment; filename="' . $filename . '"');
+header('Content-Length: ' . strlen($file));
+header('X-Content-Type-Options: nosniff');
+header('X-Frame-Options: DENY');
+header('Content-Security-Policy: default-src \'none\'; sandbox');
+header('Cache-Control: no-store');
+
+echo $file;
 ?>
